@@ -1,10 +1,8 @@
 require 'rails_helper'
 
 class UserSpec
-
     RSpec.describe User, type: :model do
         context 'validation' do
-
             let! (:valid_user) {
                 User.new(
                     first_name: "Homer",
@@ -59,7 +57,34 @@ class UserSpec
             end
         end
 
+        context 'password encryption' do
+            let! (:valid_user) {
+                User.new(
+                    first_name: "Homer",
+                    last_name: "Simpson",
+                    email: "safety@springfieldnuclear.com",
+                    password: "11111"
+                )
+            }
 
+            it 'hashes the given password' do
+                given_password = valid_user.password
+
+                valid_user.save!()
+                new_record = User.find(valid_user.id)
+
+                expect(new_record.password).to be(nil)
+                expect(new_record.password_digest).not_to eq(given_password)
+            end
+
+            it 'authenticates the correct password against the password_digest' do
+                given_password = valid_user.password
+
+                valid_user.save!()
+                new_record = User.find(valid_user.id)
+
+                expect(new_record.authenticate(given_password))
+            end
+        end
     end
-
 end
