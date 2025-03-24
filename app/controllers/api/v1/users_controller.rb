@@ -10,9 +10,27 @@ class Api::V1::UsersController < ApplicationController
         end
     end
 
+    def update
+        current_user = get_current_user(id: user_id())
+        unless current_user
+            render status: 403
+        else
+            current_user.update(update_user_params())
+        end
+    end
+
     private
 
-    def new_user_params
+    def new_user_params()
         params.permit(:first_name, :last_name, :email, :password)
     end
+
+    def update_user_params()
+        params.permit(:first_name, :last_name)
+    end
+
+    def user_id()
+        params[:id].to_i
+    end
+
 end
