@@ -132,4 +132,28 @@ RSpec.describe '/api/v1/user' do
             expect(response.code).to eq "403"
         end
     end
+
+    context '#destroy endpoint' do
+        let!(:existing_user) {
+            User.create!(
+                first_name: "Bob",
+                last_name: "Belcher",
+                email: "bob@bobsburgers.com",
+                password: "thisisapassword"
+            )
+        }
+
+        it 'responds 403 if user does not exist' do
+            delete "/api/users/0", headers: required_headers
+
+            expect(response.code).to eq "403"
+        end
+
+        it 'responds 2xx and deletes user if valid request' do
+            delete "/api/users/#{existing_user.id}", headers: required_headers
+
+            expect(response.code).to be "200"
+            expect(User.find_by(id: existing_user.id)).to be nil
+        end
+    end
 end
