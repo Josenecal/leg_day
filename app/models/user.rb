@@ -1,5 +1,5 @@
 class User < ApplicationRecord
-    [:first_name, :last_name, :email, :password].each do |required_attr|
+    [:first_name, :last_name, :email, :password_digest].each do |required_attr|
         validates required_attr, presence: true
     end
 
