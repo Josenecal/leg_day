@@ -19,6 +19,15 @@ class Api::V1::UsersController < ApplicationController
         end
     end
 
+    def destroy
+        to_destroy = get_current_user(id: user_id())
+        if to_destroy
+            to_destroy.destroy
+        else
+            render status: 403
+        end
+    end
+
     private
 
     def new_user_params()
