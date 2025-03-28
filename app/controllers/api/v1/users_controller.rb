@@ -31,11 +31,11 @@ class Api::V1::UsersController < ApplicationController
     private
 
     def new_user_params()
-        params.permit(:first_name, :last_name, :email, :password)
+        params.permit(*User.new_record_params())
     end
 
     def update_user_params()
-        params.permit(:first_name, :last_name)
+        params.permit(*User.updatable_params())
     end
 
     def user_id()
