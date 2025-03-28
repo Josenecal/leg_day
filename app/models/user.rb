@@ -1,20 +1,17 @@
 class User < ApplicationRecord
-    REQUIRED_FIELDS = [:first_name, :last_name, :email, :password_digest]
-    UPDATABLE_FIELDS = []
-
-    REQUIRED_FIELDS.each do |attr|
+    # Validations and Attributes
+    [:first_name, :last_name, :email, :password_digest].each do |attr|
         validates attr, presence: true
     end
-
-    validates :email, uniqueness: true
-    
+    validates :email, uniqueness: true   
     has_secure_password
 
+    # Class methods
     def self.new_record_params()
-        REQUIRED_FIELDS
+        [:first_name, :last_name, :email, :password]
     end
 
     def self.updatable_params()
-        UPDATABLE_FIELDS
+        [:first_name, :last_name]
     end
 end
