@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_27_235833) do
+ActiveRecord::Schema[7.1].define(version: 2025_03_29_170143) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,18 +19,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_27_235833) do
     t.string "muscle_groups", default: [], array: true
     t.string "equipment", default: [], array: true
     t.string "discipline"
-    t.integer "type"
+    t.integer "category", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "exercises_workouts", id: false, force: :cascade do |t|
+  create_table "set_structures", force: :cascade do |t|
     t.bigint "workout_id", null: false
     t.bigint "exercise_id", null: false
-    t.integer "sets"
-    t.integer "reps"
-    t.integer "weight"
-    t.integer "duration"
+    t.integer "sets", default: 3, null: false
+    t.integer "reps", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["exercise_id"], name: "index_set_structures_on_exercise_id"
+    t.index ["workout_id"], name: "index_set_structures_on_workout_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -48,4 +50,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_27_235833) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "set_structures", "exercises"
+  add_foreign_key "set_structures", "workouts"
 end

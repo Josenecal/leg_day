@@ -5,7 +5,7 @@ class CreateExercises < ActiveRecord::Migration[7.1]
       t.string :muscle_groups, array: true, default: []
       t.string :equipment, array: true, default: []
       t.string :discipline
-      t.integer :type
+      t.integer :category, null: false
       t.timestamps
     end
   end
