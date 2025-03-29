@@ -1,12 +1,17 @@
 class Workout < ApplicationRecord
-    REQUIRED_FIELDS = []
-    UPDATABLE_FIELDS = []
+    # Validations
+    validates :user_id, presence: true
+    belongs_to :user
+    has_many :set_structures, dependent: :destroy
+    has_many :exercises, through: :set_structures
 
     def self.new_record_params()
-        REQUIRED_FIELDS
+        [:user_id]
     end
 
     def self.updatable_params()
-        UPDATABLE_FIELDS
+        # This may change at some point in the future, but
+        # currently the workout itself is not updatable.
+        nil
     end
 end
