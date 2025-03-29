@@ -1,5 +1,78 @@
 require 'rails_helper'
+require 'pry'
 
 RSpec.describe Workout, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  let! (:user) {
+    User.create(
+      first_name: "Leopold",
+      last_name: "Loggle",
+      email: "leopold.loggle@logglesgeneral.wart",
+      password: "gains"
+    )
+  }
+
+  let! (:exercise_1) {
+    Exercise.create(
+      name: "squats",
+      category: 0
+    )
+  }
+
+  let! (:exercise_2) {
+    Exercise.create(
+      name: "warmup run",
+      category: 1
+    )
+  }
+
+  let! (:exercise_3) {
+    Exercise.create(
+      name: "dumbbell curls",
+      category: 1
+    )
+  }
+  
+  context 'association' do
+    it 'requires a valid user id to save' do
+      valid_workout = Workout.new(user_id: user.id)
+      invalid_workout = Workout.new(user_id: 0)
+
+      expect(valid_workout.save).to be_truthy
+      expect(invalid_workout.save).to be false
+    end
+
+    it 'has many exercises through set_structures' do
+      workout = Workout.create(
+        user_id: user.id,
+      )
+
+      expect(workout.exercises.count).to eq 0
+
+      workout.set_structures.create(exercise_id: exercise_1.id)
+      expect(workout.exercises.count).to be 1
+      expect(workout.set_structures.count).to be 1
+
+      workout.set_structures.create(exercise_id: exercise_2.id)
+      expect(workout.exercises.count).to be 2
+      expect(workout.set_structures.count).to be 2
+    end
+
+    it 'destroys set_structures when deleted without destroying exercises' do
+      workout = Workout.create(
+        user_id: user.id,
+      )
+      workout.set_structures.create(exercise_id: exercise_1.id)
+      workout.set_structures.create(exercise_id: exercise_2.id)
+
+      expect(Exercise.all.count).to eq 3
+      expect(SetStructure.all.count).to eq 2
+      expect(Workout.all.count).to eq 1
+
+      workout.destroy
+
+      expect(Workout.all.count).to eq 0
+      expect(SetStructure.all.count).to eq 0
+      expect(Exercise.all.count).to eq 3
+    end
+  end
 end
