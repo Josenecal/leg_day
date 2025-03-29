@@ -79,4 +79,28 @@ RSpec.describe Workout, type: :model do
       expect(Exercise.all.count).to eq 3
     end
   end
+
+  context 'validations' do
+    it { should validate_presence_of(:user_id) }
+  end
+
+  context 'class methods' do
+    context '::new_record_params' do
+      it 'should return all required fields for a new user' do
+        expected = [:user_id]
+        actual = Workout.new_record_params
+
+        expect(actual).to eq expected
+      end
+    end
+
+    context '::updatable_params' do
+      it 'should return all user-updatable fields' do 
+        expected = nil
+        actual = Workout.updatable_params
+
+        expect(actual).to eq expected
+      end
+    end
+  end
 end

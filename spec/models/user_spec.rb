@@ -94,4 +94,25 @@ RSpec.describe User, type: :model do
             expect(new_record.authenticate(given_password))
         end
     end
+
+
+  context 'class methods' do
+    context '::new_record_params' do
+      it 'should return all required fields for a new user' do
+        expected = [:first_name, :last_name, :email, :password]
+        actual = User.new_record_params
+
+        expect(actual).to eq expected
+      end
+    end
+
+    context '::updatable_params' do
+      it 'should return all user-updatable fields' do 
+        expected = [:first_name, :last_name]
+        actual = User.updatable_params
+
+        expect(actual).to eq expected
+      end
+    end
+  end
 end

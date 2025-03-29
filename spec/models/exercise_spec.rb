@@ -101,4 +101,24 @@ RSpec.describe Exercise, type: :model do
       expect(exercise.category).to eq "Flexibility"
     end
   end
+
+  context 'class methods' do
+    context '::new_record_params' do
+      it 'should return all required fields for a new user' do
+        expected = [:name, :muscle_groups, :equipment, :discipline, :category]
+        actual = Exercise.new_record_params
+
+        expect(actual).to eq expected
+      end
+    end
+
+    context '::updatable_params' do
+      it 'should return all user-updatable fields' do 
+        expected = [:name, :muscle_groups, :equipment, :discipline, :category]
+        actual = Exercise.updatable_params
+
+        expect(actual).to eq expected
+      end
+    end
+  end
 end
