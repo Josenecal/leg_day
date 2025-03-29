@@ -1,9 +1,15 @@
 class Exercise < ApplicationRecord
-    REQUIRED_FIELDS = []
-    UPDATABLE_FIELDS = []
+    has_many :set_structures
+    has_many :workouts, through: :set_structures
+    validates :name, presence: true
+    validates :category, presence: true
 
-    has_many :workouts, through: :workouts_exercises
-
+    enum category: {
+        "Aerobic" => 0,
+        "Resistance" => 1,
+        "Calisthenic" => 2,
+        "Flexibility" => 3
+    }
     def self.new_record_params()
         REQUIRED_FIELDS
     end
