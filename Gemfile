@@ -49,4 +49,5 @@ end
 
 group :test do
   gem "simplecov"
+  gem 'shoulda-matchers', '~> 5.0'
 end
