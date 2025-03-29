@@ -11,10 +11,10 @@ class Exercise < ApplicationRecord
         "Flexibility" => 3
     }
     def self.new_record_params()
-        REQUIRED_FIELDS
+        [:name, :muscle_groups, :equipment, :discipline, :category]
     end
 
     def self.updatable_params()
-        UPDATABLE_FIELDS
+        [:name, :muscle_groups, :equipment, :discipline, :category]
     end
 end
