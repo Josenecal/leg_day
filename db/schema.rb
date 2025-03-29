@@ -16,6 +16,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_29_170143) do
 
   create_table "exercises", force: :cascade do |t|
     t.string "name"
+    t.string "description"
     t.string "muscle_groups", default: [], array: true
     t.string "equipment", default: [], array: true
     t.string "discipline"
