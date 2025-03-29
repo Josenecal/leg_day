@@ -1,6 +1,16 @@
 require 'rails_helper'
 
 RSpec.describe Exercise, type: :model do
+  context 'associations' do
+    it { should have_many(:set_structures) }
+    it { should have_many(:workouts).through(:set_structures) }
+  end
+
+  context 'validations' do
+    it { should validate_presence_of(:name) }
+    it { should validate_presence_of(:category) }
+  end
+
   context 'new records' do
     let! (:full_record) {
       Exercise.new(

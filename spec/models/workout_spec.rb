@@ -33,6 +33,10 @@ RSpec.describe Workout, type: :model do
   }
   
   context 'association' do
+    it { should belong_to(:user) }
+    it { should have_many(:set_structures).dependent(:destroy) }
+    it { should have_many(:exercises).through(:set_structures) }
+
     it 'requires a valid user id to save' do
       valid_workout = Workout.new(user_id: user.id)
       invalid_workout = Workout.new(user_id: 0)
