@@ -8,10 +8,10 @@ class User < ApplicationRecord
 
     # Class methods
     def self.new_record_params()
-        [:first_name, :last_name, :email, :password]
+        return [:first_name, :last_name, :email, :password]
     end
 
     def self.updatable_params()
-        [:first_name, :last_name]
+        return [:first_name, :last_name]
     end
 end

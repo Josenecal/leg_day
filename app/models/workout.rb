@@ -6,12 +6,12 @@ class Workout < ApplicationRecord
     has_many :exercises, through: :set_structures
 
     def self.new_record_params()
-        [:user_id]
+        return [:user_id]
     end
 
     def self.updatable_params()
         # This may change at some point in the future, but
         # currently the workout itself is not updatable.
-        nil
+        return nil
     end
 end
