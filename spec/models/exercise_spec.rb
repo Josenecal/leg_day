@@ -11,6 +11,17 @@ RSpec.describe Exercise, type: :model do
     it { should validate_presence_of(:category) }
   end
 
+  context 'database table' do
+    it { should have_db_column(:name).of_type(:string) }
+    it { should have_db_column(:description).of_type(:string) }
+    it { should have_db_column(:muscle_groups).of_type(:string) }
+    it { should have_db_column(:equipment).of_type(:string) }
+    it { should have_db_column(:discipline).of_type(:string) }
+    it { should have_db_column(:category).of_type(:integer) }
+    it { should have_db_column(:created_at).of_type(:datetime) }
+    it { should have_db_column(:updated_at).of_type(:datetime) }
+  end
+
   context 'new records' do
     let! (:full_record) {
       Exercise.new(

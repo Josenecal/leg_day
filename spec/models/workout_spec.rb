@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'pry'
 
 RSpec.describe Workout, type: :model do
   let! (:user) {
@@ -82,6 +81,12 @@ RSpec.describe Workout, type: :model do
 
   context 'validations' do
     it { should validate_presence_of(:user_id) }
+  end
+
+  context 'database table' do
+    it { should have_db_column(:user_id).of_type(:integer) }
+    it { should have_db_column(:created_at).of_type(:datetime) }
+    it { should have_db_column(:updated_at).of_type(:datetime) }
   end
 
   context 'class methods' do
