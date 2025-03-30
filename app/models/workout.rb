@@ -4,6 +4,7 @@ class Workout < ApplicationRecord
     belongs_to :user
     has_many :set_structures, dependent: :destroy
     has_many :exercises, through: :set_structures
+    accepts_nested_attributes_for :set_structures
 
     def self.new_record_params()
         return [:user_id]
