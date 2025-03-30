@@ -89,6 +89,10 @@ RSpec.describe Workout, type: :model do
     it { should have_db_column(:updated_at).of_type(:datetime) }
   end
 
+  context 'nested attributes' do
+    it { should accept_nested_attributes_for(:set_structures) }
+  end
+
   context 'class methods' do
     context '::new_record_params' do
       it 'should return all required fields for a new user' do
