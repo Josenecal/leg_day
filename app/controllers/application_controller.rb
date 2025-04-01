@@ -1,10 +1,14 @@
 class ApplicationController < ActionController::API
 
-    def get_current_user(id: nil, token: nil)
-        # TO-DO: modify this to find a user by ID and then
-        # check that the found user has an active session with
-        # a matching token to the request
-
-        User.find_by(id: id)
+    def current_user()
+        # TO-DO: This will eventually implement JWT auth and need
+        # to be updated to reflect this.
+        # require 'pry'; binding.pry
+        user_id = request.headers['Authorization']
+        unless user_id.present?
+            return nil
+        else
+            return User.find_by(id: user_id.to_i)
+        end
     end
 end
