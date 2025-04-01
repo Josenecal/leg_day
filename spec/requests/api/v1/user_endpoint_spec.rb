@@ -11,14 +11,15 @@ RSpec.describe '/api/v1/user' do
         }
     }
 
-    let! (:required_headers) {
-        {
-            content_type: "application/json",
-            accept: "application/json"
-        }
-    }
-
     context '#create endpoint' do
+
+        let! (:required_headers) {
+            {
+                content_type: "application/json",
+                accept: "application/json"
+            }
+        }
+
         it 'creates a user when given valid data' do
             post "/api/v1/users", params: required_params, headers: required_headers
             
@@ -71,6 +72,14 @@ RSpec.describe '/api/v1/user' do
                 email: "bob@bobsburgers.com",
                 password: "thisisapassword"
             )
+        }
+
+        let! (:required_headers) {
+            {
+                content_type: "application/json",
+                accept: "application/json",
+                authorization: original_user.id.to_s
+            }
         }
 
         it 'updates the first_name and/or last_name of an existing user' do
@@ -127,7 +136,12 @@ RSpec.describe '/api/v1/user' do
         end
 
         it 'returns 403 if user does not exist' do
-            patch "/api/v1/users/0", params: {first_name: original_user.first_name, last_name: original_user.last_name}, headers: required_headers
+            bad_user_headers = {
+                content_type: "application/json",
+                accept: "application/json",
+                authorization: "0"
+            }
+            patch "/api/v1/users/0", params: {first_name: original_user.first_name, last_name: original_user.last_name}, headers: bad_user_headers
 
             expect(response.code).to eq "403"
         end
@@ -143,16 +157,30 @@ RSpec.describe '/api/v1/user' do
             )
         }
 
-        it 'responds 403 if user does not exist' do
-            delete "/api/v1/users/0", headers: required_headers
+        let! (:required_headers) {
+            {
+                content_type: "application/json",
+                accept: "application/json",
+                authorization: existing_user.id.to_s
+            }
+        }
 
-            expect(response.code).to eq "403"
+        it 'responds 403 if user does not exist' do
+            bad_user_headers = {
+                content_type: "application/json",
+                accept: "application/json",
+                authorization: "0"
+            }
+
+            delete "/api/v1/users/99999999", headers: bad_user_headers
+
+            expect(response.code).to eq "401"
         end
 
         it 'responds 2xx and deletes user if valid request' do
             delete "/api/v1/users/#{existing_user.id}", headers: required_headers
 
-            expect(response.code).to eq "204"
+            expect(response.code).to eq "200"
             expect(User.find_by(id: existing_user.id)).to be nil
         end
     end
