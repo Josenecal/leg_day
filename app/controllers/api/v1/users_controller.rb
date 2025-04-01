@@ -11,21 +11,24 @@ class Api::V1::UsersController < ApplicationController
     end
 
     def update
-        current_user = get_current_user(id: user_id())
-        unless current_user
+        user = current_user()
+        unless user
             render status: 403
         else
-            current_user.update(update_user_params())
+            user.update(update_user_params())
         end
     end
 
     def destroy
-        to_destroy = get_current_user(id: user_id())
+        to_destroy = current_user()
+        # binding.pry
         if to_destroy
             to_destroy.destroy
+            status_code = 200
         else
-            render status: 403
+            status_code = 401
         end
+        render status: status_code
     end
 
     private
