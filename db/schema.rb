@@ -30,6 +30,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_29_170143) do
     t.bigint "exercise_id", null: false
     t.integer "sets", default: 3, null: false
     t.integer "reps", default: 0, null: false
+    t.integer "resistance"
+    t.integer "resistance_unit"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["exercise_id"], name: "index_set_structures_on_exercise_id"
