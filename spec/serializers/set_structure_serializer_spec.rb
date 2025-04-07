@@ -2,6 +2,14 @@ require 'rails_helper'
 require 'pry'
 
 RSpec.describe WorkoutSerializer do
+    let! (:user) {
+        User.create(
+            first_name: "Leopold",
+            last_name: "Loggle",
+            email: "loggle@wartwoodgeneral.com",
+            password: "G41N5"
+        )
+    }
     let! (:exercise) {
         Exercise.create(
             name: "squat",
@@ -24,31 +32,39 @@ RSpec.describe WorkoutSerializer do
             exercise_id: exercise.id,
             sets: 3,
             reps: 12,
-            resistance: 150
-            resistance_units: 
+            resistance: 150,
+            resistance_unit: 0
         )
     }
     context "serializable_hash data shape" do
         it "should serialize data into the expected JSON format" do
             expected = {
                 data: {
-                    id: "#{workout.id}",
-                    type: :workout,
+                    id: "#{set_structure.id}",
+                    type: :set_structure,
                     attributes: {
-                        id: workout.id,
-                        completed_at: "Wednesday, 02/25/1970, 08:00PM" #matches workout's created_at
+                        sets: set_structure.sets,
+                        reps: set_structure.reps,
+                        name: exercise.name,
+                        resistance: "#{set_structure.resistance} lbs"
                     },
                     relationships: {
-                        set_structures: {
-                            data: []
+                        workout: {
+                            data: {
+                                id: workout.id.to_s,
+                                type: :workout
+                            }
                         },
-                        exercises: {
-                            data: []
+                        exercise: {
+                            data: {
+                                id: exercise.id.to_s,
+                                type: :exercise
+                            }
                         }
                     }
                 }
             }
-            actual = WorkoutSerializer.new(workout).serializable_hash
+            actual = SetStructureSerializer.new(set_structure).serializable_hash
 
             expect(expected).to eq actual
         end
