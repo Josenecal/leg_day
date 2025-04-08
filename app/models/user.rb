@@ -4,7 +4,9 @@ class User < ApplicationRecord
         validates attr, presence: true
     end
     validates :email, uniqueness: true   
+
     has_secure_password
+    has_many :workouts
 
     # Class methods
     def self.new_record_params()
