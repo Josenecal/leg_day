@@ -1,6 +1,9 @@
-class WorkoutsController < ApplicationController
+class Api::V1::WorkoutsController < ApplicationController
+    before_action :authenticate_request
+
     def index()
-        # Do stuff
+        workouts = current_user(sanatize_auth_header).workouts
+        render json: WorkoutSerializer.new(workouts).serializable_hash
     end
 
     def show()
