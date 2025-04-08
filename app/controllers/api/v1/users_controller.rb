@@ -11,17 +11,16 @@ class Api::V1::UsersController < ApplicationController
     end
 
     def update
-        user = current_user()
-        unless user
-            render status: 403
-        else
+        user = current_user(sanatize_auth_header)
+        if user
             user.update(update_user_params())
+        else
+            render status: 403
         end
     end
 
     def destroy
-        to_destroy = current_user()
-        # binding.pry
+        to_destroy = current_user(sanatize_auth_header)
         if to_destroy
             to_destroy.destroy
             status_code = 200
@@ -39,10 +38,6 @@ class Api::V1::UsersController < ApplicationController
 
     def update_user_params()
         params.permit(*User.updatable_params())
-    end
-
-    def user_id()
-        params[:id].to_i
     end
 
 end

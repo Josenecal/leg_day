@@ -83,7 +83,6 @@ RSpec.describe '/api/v1/user' do
         }
 
         it 'updates the first_name and/or last_name of an existing user' do
-            # binding.pry
             new_first_name = "Jimmy"
             new_last_name = "Pesto"
 
@@ -91,7 +90,7 @@ RSpec.describe '/api/v1/user' do
             patch "/api/v1/users", params: {first_name: new_first_name}, headers: required_headers
 
             updated_user = User.find(original_user.id)
-
+            
             expect(updated_user.first_name).to eq new_first_name
             expect(updated_user.last_name).to eq original_user.last_name
             expect(updated_user.email).to eq original_user.email
