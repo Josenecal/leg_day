@@ -14,31 +14,18 @@ RSpec.describe ApplicationController, type: :controller do
                 )
         end
 
-        context '#current_user' do
+        context '#current_user(id)' do
 
-            it 'finds and returns a user when authorization header' do
-                controller.request.headers['Authorization'] = existing_user.id.to_s
+            it 'finds and returns a user when passed a valid user id' do
 
-                expect(controller.current_user).to eq existing_user
+                expect(controller.current_user(existing_user.id.to_s)).to eq existing_user
             end
 
             it 'returns nil when passed an invalid user ID' do
-                controller.request.headers['Authorization'] = "abcdefg"
-
-                expect(controller.current_user()).to eq nil
-
-                controller.request.headers['Authorization'] = "#{existing_user.id}5"
-
-                expect(controller.current_user()).to eq nil
-
-                controller.request.headers['Authorization'] = "12#{existing_user.id}"
-
-                expect(controller.current_user()).to eq nil
+                expect(controller.current_user(0)).to eq nil
             end
 
-            it 'returns nil when passed no auth header' do
-                controller.request.headers['Authorization'] = nil
-
+            it 'returns nil when passed no user ID' do
                 expect(controller.current_user()).to eq nil
             end
         end
