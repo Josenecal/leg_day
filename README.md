@@ -1,24 +1,5 @@
-# README
+# Every Day Is Leg Day
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Welcome to the Leg dAPI, a backend application that supports users planing and tracking their own workouts. The concept for this project came to me while I was working out in the gym, and realized that I couldn't for the life of me remember what weights I was using in my last workout. I realized that what I needed was a simple way to track my weight lifting workouts, and that having a database of different lifts at my fingertips wouldn't hurt either. 
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Leg dAPI is backed by a PostgreSQL database with a very simple layout. 
