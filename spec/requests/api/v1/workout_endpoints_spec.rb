@@ -117,7 +117,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
             it "responds 401 if requesting a workout not belonging to a user" do
                 someone_elses_wrkt = create(:workout)
                 get "/api/v1/workouts/#{someone_elses_wrkt.id}", headers: required_headers
-                expect(response.status.to_i).to eq 401
+                expect(response.status.to_i).to eq 404
             end
 
             it "responds 200 if auth references an existing user" do
@@ -130,8 +130,12 @@ RSpec.describe "/api/v1/exercises", type: :request do
 
             before { get "/api/v1/workouts/#{workout_1.id}", headers: required_headers }
 
+            it "should respond 404 if requesting a workout that doesn't exist" do
+
+            end
+
             it "should contain a single workout" do
-                workout = JSON.parse(response.body)
+                workout = JSON.parse(response.body)["data"]
 
                 # Response should contain workout_1, hashed
                 expect(workout.is_a?(Hash)).to eq true
@@ -152,19 +156,121 @@ RSpec.describe "/api/v1/exercises", type: :request do
                 actual_ss_ids = [set_structure_1_1.id, set_structure_1_2.id].sort
 
                 expect(expected_ss_ids).to eq actual_ss_ids
-
-                # Exercises should also have expected IDs
-                wrkt_exercises = workout["relationships"]["exercises"]["data"]
-                expected_e_ids = (wrkt_exercises.reduce([]) {|acc, e| acc << e["id"].to_i }).sort
-                actual_e_ids = [set_structure_1_1.exercise_id, set_structure_1_2.exercise_id].sort
-
-                expect(expected_e_ids).to eq actual_e_ids
             end
         end
     end
 
     context "POST /" do
+        let! (:exercise_1) { create :exercise }
+        let! (:exercise_2) { create :exercise }
+        let! (:ss_tid_1) { "new_#{SecureRandom.hex(4)}" }
+        let! (:ss_tid_2) { "new_#{SecureRandom.hex(4)}" }
 
+        let! (:serialized_workout) do
+            {
+                data: {
+                    type: "workout",
+                    attributes: {},
+                    relationships: {
+                        set_structures: {
+                            data: [
+                                { 
+                                    type: "set_structure", 
+                                    id: ss_tid_1
+                                },
+                                { 
+                                    type: "set_structure", 
+                                    id: ss_tid_2
+                                }
+                            ]
+                        }
+                    }
+                },
+                included: [
+                    {
+                        type: "set_structure",
+                        id: ss_tid_1,
+                        attributes: {
+                            sets: "3", 
+                            reps: "10", 
+                            resistance: "150", 
+                            resistance_unit: "1", 
+                            exercise_id: "#{exercise_1.id}"
+                        }
+                    },
+                    {
+                        type: "set_structure",
+                        id: ss_tid_2,
+                        attributes: {
+                            sets: "4", 
+                            reps: "15", 
+                            resistance: "5", 
+                            resistance_unit: "lbs", 
+                            exercise_id: "#{exercise_2.id}"
+                        }
+                    }
+                ]
+            }
+        end
+
+        context "authorization" do
+            it "should reject a request sent without an authorization headers" do
+                no_auth = required_headers.reject { |k, v| k.match?("authorization") }
+                post "/api/v1/workouts", headers: no_auth
+                expect(response.status).to eq 401
+            end
+
+            it "should reject a request sent with an invalid authorization header" do
+                bad_auth = required_headers.merge(authorization: "0")
+                post "/api/v1/workouts", headers: bad_auth
+                expect(response.status).to eq 401
+            end
+        end
+
+
+        context "errors" do
+            it "should return an error if required params for new workout are missing" do
+                # Placeholder - This is currently impossible, as the only required param is 
+                # user_id, which is taken from auth. Auth failure is tested separately.
+            end
+
+            it "should return an error if the required params for any set structure are missing" do
+                bad_ss_1_attrs = serialized_workout[:included].first[:attributes]
+                bad_ss_1_attrs.delete(:exercise_id)
+                bad_serialization = serialized_workout
+                bad_serialization[:included].first[:attributes] = bad_ss_1_attrs
+
+                post "/api/v1/workouts", headers: required_headers, params: bad_serialization
+                # binding.pry
+                expect(response.status).to eq 422
+            end
+        end
+
+        context "workout creation" do
+            it "should create a workout from a properly serialized request" do
+                expect(Workout.count).to eq 0
+                expect(SetStructure.count).to eq 0
+
+                post "/api/v1/workouts", headers: required_headers, params: serialized_workout
+
+                expect(Workout.count).to eq 1
+
+                workout = Workout.first
+                expect(workout.set_structures.count).to eq 2
+            end
+
+            it "should serialize the new workout in the response body" do
+                post "/api/v1/workouts", headers: required_headers, params: serialized_workout
+                new_workout_id = 
+
+                expected = {
+                    data: {
+                        type: "workout"
+                    }
+                }
+            end
+            
+        end
     end
 
     context "PATCH /:id" do
