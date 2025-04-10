@@ -261,13 +261,50 @@ RSpec.describe "/api/v1/exercises", type: :request do
 
             it "should serialize the new workout in the response body" do
                 post "/api/v1/workouts", headers: required_headers, params: serialized_workout
-                new_workout_id = 
-
+                
+                new_workout_id = Workout.last.id
+                completed_at = Workout.last.created_at.strftime("%A, %m/%d/%Y, %I:%M%p")
+                new_sets = SetStructure.all.order(id: :desc).limit(2)
                 expected = {
                     data: {
-                        type: "workout"
-                    }
-                }
+                        id: new_workout_id.to_s,
+                        type: "workout",
+                        attributes: {
+                            completed_at: completed_at
+                        },
+                        relationships: {
+                            set_structures: {
+                                data: [
+                                    {id: new_sets.last.id.to_s, type: "set_structure"},
+                                    {id: new_sets.first.id.to_s, type: "set_structure"}
+                                ]
+                            }
+                        }
+                    },
+                    included: [
+                        {
+                            id: new_sets.last.id.to_s,
+                            type: "set_structure",
+                            attributes: {
+                                sets: 3,
+                                reps: 10,
+                                name: new_sets.last.exercise.name,
+                                resistance: "150 Kg"
+                            }
+                        },
+                        {
+                            id: new_sets.first.id.to_s,
+                            type: "set_structure",
+                            attributes: {
+                                sets: 4,
+                                reps: 15,
+                                name: new_sets.first.exercise.name,
+                                resistance: "5 lbs"
+                            }
+                        }
+                    ]
+                }.to_json
+                expect(response.body).to eq expected
             end
             
         end
