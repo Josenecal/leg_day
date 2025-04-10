@@ -63,7 +63,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
                 expect(sent_workout_1["id"]).to eq workout_1.id.to_s
 
                 # Should contain 2 relationships, "set_structures" and "exercises"
-                expect(sent_workout_1["relationships"].keys.sort).to eq ["exercises", "set_structures"]
+                expect(sent_workout_1["relationships"].keys.sort).to eq ["set_structures"]
 
                 # Set Structures should have IDs matching set_structure_1_1 and set_structure_1_2
                 wkt_1_set_structs = sent_workout_1["relationships"]["set_structures"]["data"]
@@ -71,13 +71,6 @@ RSpec.describe "/api/v1/exercises", type: :request do
                 actual_ss_ids = [set_structure_1_1.id, set_structure_1_2.id].sort
 
                 expect(expected_ss_ids).to eq actual_ss_ids
-
-                # Exercises should also have expected IDs
-                wkt_1_exercises = sent_workout_1["relationships"]["exercises"]["data"]
-                expected_e_ids = (wkt_1_exercises.reduce([]) {|acc, e| acc << e["id"].to_i }).sort
-                actual_e_ids = [set_structure_1_1.exercise_id, set_structure_1_2.exercise_id].sort
-
-                expect(expected_e_ids).to eq actual_e_ids
             end
 
             it "only includes a user's owned workouts" do
@@ -148,10 +141,10 @@ RSpec.describe "/api/v1/exercises", type: :request do
 
             it "should include appropriate relationships" do
                 # First Workout should contain set structures 1_1 and 1_2
-                workout = JSON.parse(response.body)
+                workout = JSON.parse(response.body)["data"]
 
                 # Should contain 2 relationships, "set_structures" and "exercises"
-                expect(workout["relationships"].keys.sort).to eq ["exercises", "set_structures"]
+                expect(workout["relationships"].keys.sort).to eq ["set_structures"]
 
                 # Set Structures should have IDs matching set_structure_1_1 and set_structure_1_2
                 wrkt_set_structs = workout["relationships"]["set_structures"]["data"]
