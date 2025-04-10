@@ -1,8 +1,5 @@
 class SetStructureSerializer
   include JSONAPI::Serializer
-  
-  belongs_to :workout
-  belongs_to :exercise
 
   attributes :sets, :reps
 

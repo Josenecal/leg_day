@@ -23,14 +23,10 @@ RSpec.describe WorkoutSerializer do
                     id: "#{workout.id}",
                     type: :workout,
                     attributes: {
-                        id: workout.id,
                         completed_at: "Wednesday, 02/25/1970, 08:00PM" #matches workout's created_at
                     },
                     relationships: {
                         set_structures: {
-                            data: []
-                        },
-                        exercises: {
                             data: []
                         }
                     }

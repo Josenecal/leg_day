@@ -47,20 +47,6 @@ RSpec.describe WorkoutSerializer do
                         reps: set_structure.reps,
                         name: exercise.name,
                         resistance: "#{set_structure.resistance} lbs"
-                    },
-                    relationships: {
-                        workout: {
-                            data: {
-                                id: workout.id.to_s,
-                                type: :workout
-                            }
-                        },
-                        exercise: {
-                            data: {
-                                id: exercise.id.to_s,
-                                type: :exercise
-                            }
-                        }
                     }
                 }
             }
