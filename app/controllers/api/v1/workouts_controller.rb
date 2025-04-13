@@ -16,7 +16,6 @@ class Api::V1::WorkoutsController < ApplicationController
     end
 
     def create()
-        # binding.pry
         workout = Workout.new(new_workout_params)
         if workout.save!
             render json: WorkoutSerializer.new(workout, include: [:set_structures]).serializable_hash
@@ -77,7 +76,6 @@ class Api::V1::WorkoutsController < ApplicationController
             hashed = set.permit(:id, :attributes => [:sets, :reps, :resistance, :resistance_unit, :exercise_id, :delete]).to_h
             acc << hashed
         end
-        # binding.pry
         return permitted
     end
 
