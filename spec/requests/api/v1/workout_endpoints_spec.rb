@@ -591,17 +591,68 @@ RSpec.describe "/api/v1/exercises", type: :request do
     end
 
     context "DELETE /:id" do
+        let!(:workout) { create :workout, user_id: user.id }
+        let!(:exercise_1) { create :exercise }
+        let!(:exercise_2) { create :exercise }
+        let(:set_1) { create :set_structure, exercise_id: exercise_1.id, workout_id: workout.id }
+        let(:set_2) { create :set_structure, exercise_id: exercise_2.id, workout_id: workout.id }
+
         context "authorization" do
             it "should reject a request sent without an authorization headers" do
                 no_auth = required_headers.reject { |k, v| k.match?("authorization") }
-                post "/api/v1/workouts", headers: no_auth
+                delete "/api/v1/workouts/#{workout.id}", headers: no_auth
                 expect(response.status).to eq 401
             end
 
             it "should reject a request sent with an invalid authorization header" do
                 bad_auth = required_headers.merge(authorization: "0")
-                post "/api/v1/workouts", headers: bad_auth
+                delete "/api/v1/workouts/#{workout.id}", headers: bad_auth
                 expect(response.status).to eq 401
+            end
+
+            it "should reject a request to delete another user's workout" do
+                another_users_workout = create :workout
+                delete "/api/v1/workouts/#{another_users_workout.id}", headers: required_headers
+                expect(response.status).to eq 404
+            end
+        end
+
+        context "database" do
+           it "should be updated to delete the indicated workout" do
+                expect(Workout.find_by(id: workout.id)).not_to be nil
+                
+                delete "/api/v1/workouts/#{workout.id}", headers: required_headers
+                
+                expect(Workout.find_by(id: workout.id)).to be nil
+            end
+            
+            it "should delete the dependent set structures as well" do
+                expect(SetStructure.find_by(id: set_1.id)).not_to be nil
+                expect(SetStructure.find_by(id: set_2.id)).not_to be nil
+                
+                delete "/api/v1/workouts/#{workout.id}", headers: required_headers
+
+                expect(SetStructure.find_by(id: set_1.id)).to be nil
+                expect(SetStructure.find_by(id: set_2.id)).to be nil
+           end
+
+           it "should not delete associated exercises" do
+                expect(Exercise.find_by(id: exercise_1.id)).not_to be nil
+                expect(Exercise.find_by(id: exercise_2.id)).not_to be nil
+
+                delete "/api/v1/workouts/#{workout.id}", headers: required_headers
+
+                expect(response.status).to be 204
+                expect(Exercise.find_by(id: exercise_1.id)).not_to be nil
+                expect(Exercise.find_by(id: exercise_2.id)).not_to be nil
+           end
+        end
+
+        context "response" do
+            it "should return 204 if successful" do
+                delete "/api/v1/workouts/#{workout.id}", headers: required_headers
+                expect(response.status).to eq 204
+                expect(response.body).to eq ""
             end
         end
     end
