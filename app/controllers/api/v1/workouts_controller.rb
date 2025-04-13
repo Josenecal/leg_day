@@ -2,13 +2,13 @@ class Api::V1::WorkoutsController < ApplicationController
     before_action :authenticate_request
 
     def index()
-        workouts = current_user(sanatize_auth_header).workouts
+        workouts = current_user.workouts
         render json: WorkoutSerializer.new(workouts).serializable_hash
     end
 
     def show()
-        workout = validate_ownership(params[:id].to_i)
-        if workout
+        workout = Workout.find_by(id: params[:id])
+        if workout && workout.owned_by?(current_user)
             render json: WorkoutSerializer.new(workout, include: [:set_structures]).serializable_hash
         else
             render status: 404
@@ -26,7 +26,13 @@ class Api::V1::WorkoutsController < ApplicationController
     end
 
     def update()
-        # Do stuff
+        workout = Workout.find(params[:id])
+        if workout.present? && workout.owned_by?(current_user)
+            workout.update_sets_from_params(bulk_set_structure_params, workout.id)
+            render json: WorkoutSerializer.new(workout, include: [:set_structures]).serializable_hash, status: 200
+        else
+            render status: 404
+        end
     end
 
     def destroy()
@@ -37,7 +43,7 @@ class Api::V1::WorkoutsController < ApplicationController
 
     def validate_ownership(workout_id)
         workout = Workout.find_by(id: workout_id)
-        user = current_user(sanatize_auth_header)
+        user = current_user
         if workout && user && workout.user_id == user.id
             return workout
         else
@@ -68,6 +74,15 @@ class Api::V1::WorkoutsController < ApplicationController
         workout_params[:set_structures_attributes] = set_structures
 
         return workout_params
+    end
+
+    def bulk_set_structure_params()
+        permitted = params[:included].reduce([]) do |acc, set|
+            hashed = set.permit(:id, :attributes => [:sets, :reps, :resistance, :resistance_unit, :exercise_id, :delete]).to_h
+            acc << hashed
+        end
+        # binding.pry
+        return permitted
     end
 
 end
