@@ -61,8 +61,8 @@ CRUD operations are supported with a few endpoints:
 | **Users** | |
 | :--- | :--- |
 | [POST `/api/v1/users`](#post-apiv1users) | creates a new user in the `users` table.|
-| PATCH `/api/v1/users/:id` | updates information for a specific user |
-| DELETE  `/api/v1/users/:id` | deletes a specific user from the database
+| [PATCH `/api/v1/users/:id`](#patch-apiv1usersid) | updates information for a specific user |
+| [DELETE  `/api/v1/users/:id`](#delete-apiv1usersid) | deletes a specific user from the database
 | **Workouts** ||
 | GET `/api/v1/workouts` | gets an index of a user's workouts |
 | GET `/api/v1/workouts/:id` | gets a specific workout |
@@ -116,6 +116,52 @@ CRUD operations are supported with a few endpoints:
 ---
 
 ### PUT/PATCH `/api/v1/users/:id/`
+
+This endpoint allows authorized users to change any or all of the updatable user fields (currently, `first_name` and/or `last_name`). User's may *only* update their own accounts, as authorized by the `Authorization` header. 
+
+#### REQUIRED HEADERS:
+```json
+{
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "Authorization": "<use's ID>"
+}
+```
+
+#### REQUEST BODY:
+```json
+    {
+        "first_name": "<new first name>",
+        "last_name": "<new last name>"
+    }
+```
+
+#### SUCCESSFUL RESPONSE:
+`Status 200`
+
+#### UNSUCCESSFUL RESPONSES:
+`Status 401`
+`Status 422`
+
+### DELETE `/api/v1/users/:id/`
+
+This endpoint allows authorized users to perminantly delete their account. User's may *only* delete their own accounts, as authorized by the `Authorization` header. 
+
+#### REQUIRED HEADERS:
+```json
+{
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "Authorization": "<use's ID>"
+}
+```
+
+#### SUCCESSFUL RESPONSE:
+`Status 204`
+
+#### UNSUCCESSFUL RESPONSES:
+`Status 401`
+
 ## Application Architecture
 
 Leg dAPI is backed by a PostgreSQL database with a very simple layout: 
