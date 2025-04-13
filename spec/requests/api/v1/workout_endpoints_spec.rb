@@ -241,7 +241,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
                 bad_serialization[:included].first[:attributes] = bad_ss_1_attrs
 
                 post "/api/v1/workouts", headers: required_headers, params: bad_serialization
-                # binding.pry
+
                 expect(response.status).to eq 422
             end
         end
