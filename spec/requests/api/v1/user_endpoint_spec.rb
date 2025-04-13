@@ -180,7 +180,7 @@ RSpec.describe '/api/v1/user' do
         it 'responds 2xx and deletes user if valid request' do
             delete "/api/v1/users", headers: required_headers
 
-            expect(response.code).to eq "200"
+            expect(response.code).to eq "204"
             expect(User.find_by(id: existing_user.id)).to be nil
         end
     end

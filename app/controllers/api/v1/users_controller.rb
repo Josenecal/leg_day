@@ -23,11 +23,10 @@ class Api::V1::UsersController < ApplicationController
         to_destroy = current_user()
         if to_destroy
             to_destroy.destroy
-            status_code = 200
+            render status: 204
         else
-            status_code = 401
+            render status: 401
         end
-        render status: status_code
     end
 
     private
