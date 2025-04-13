@@ -72,7 +72,7 @@ CRUD operations are supported with a few endpoints:
 
 ## User Endpoints
 
-### POST `/api/v1/user`
+### POST `/api/v1/users`
 
 #### REQUIRED HEADERS:
 ```json
