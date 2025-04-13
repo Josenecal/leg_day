@@ -61,7 +61,7 @@ CRUD operations are supported with a few endpoints:
 | **Users** | |
 | :--- | :--- |
 | [POST `/api/v1/users`](#post-apiv1users) | creates a new user in the `users` table.|
-| [PATCH `/api/v1/users/:id`](#patch-apiv1usersid) | updates information for a specific user |
+| [PUT/PATCH `/api/v1/users/:id`](#putpatch-apiv1usersid) | updates information for a specific user |
 | [DELETE  `/api/v1/users/:id`](#delete-apiv1usersid) | deletes a specific user from the database
 | **Workouts** ||
 | GET `/api/v1/workouts` | gets an index of a user's workouts |
