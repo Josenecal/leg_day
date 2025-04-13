@@ -60,7 +60,7 @@ CRUD operations are supported with a few endpoints:
 
 | **Users** | |
 | :--- | :--- |
-| [POST `/api/v1/users`](#post-`/api/v1/users/`) | creates a new user in the `users` table.|
+| [POST `/api/v1/users`](#post-apiv1users) | creates a new user in the `users` table.|
 | PATCH `/api/v1/users/:id` | updates information for a specific user |
 | DELETE  `/api/v1/users/:id` | deletes a specific user from the database
 | **Workouts** ||
