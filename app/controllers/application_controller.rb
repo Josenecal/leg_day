@@ -1,8 +1,9 @@
 class ApplicationController < ActionController::API
 
-    def current_user(id = nil)
+    def current_user()
         # TO-DO: This will eventually implement JWT auth and need
         # to be updated to reflect this.
+        id = sanatize_auth_header
         if id
             return User.find_by(id: id)
         else
@@ -11,7 +12,7 @@ class ApplicationController < ActionController::API
     end
 
     def authenticate_request()
-        if current_user(sanatize_auth_header)
+        if current_user()
             return true
         else
             render status: 401
