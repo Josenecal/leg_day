@@ -36,7 +36,13 @@ class Api::V1::WorkoutsController < ApplicationController
     end
 
     def destroy()
-        # Do stuff
+        workout = Workout.find_by(id: params[:id])
+        if workout.present? && workout.owned_by?(current_user)
+            workout.destroy
+            render status: 204
+        else
+            render status: 404
+        end
     end
 
     private
