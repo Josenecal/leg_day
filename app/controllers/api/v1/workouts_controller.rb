@@ -47,16 +47,6 @@ class Api::V1::WorkoutsController < ApplicationController
 
     private
 
-    def validate_ownership(workout_id)
-        workout = Workout.find_by(id: workout_id)
-        user = current_user
-        if workout && user && workout.user_id == user.id
-            return workout
-        else
-            return nil
-        end
-    end
-
     def new_workout_params()
         # Placeholder - workout_params are curerntly expected to be empty...
         workout_params = params.dig(:data, :attributes)&.permit() || {}
