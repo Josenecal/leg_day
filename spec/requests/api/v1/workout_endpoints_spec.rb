@@ -311,10 +311,298 @@ RSpec.describe "/api/v1/exercises", type: :request do
     end
 
     context "PATCH /:id" do
+        let!(:workout) { create :workout, user_id: user.id }
+        let!(:exercise_1) { create :exercise }
+        let!(:exercise_2) { create :exercise }
+        let!(:exercise_3) { create :exercise }
+        let(:set_1) { create :set_structure, exercise_id: exercise_1.id, workout_id: workout.id, sets: 3, reps: 12, resistance: 10, resistance_unit: 0 }
+        let(:set_2) { create :set_structure, exercise_id: exercise_2.id, workout_id: workout.id, sets: 3, reps: 12, resistance: 10, resistance_unit: 0}
 
+        context "authorization" do
+
+            it "should reject a request sent without an authorization headers" do
+                no_auth = required_headers.reject { |k, v| k.match?("authorization") }
+                patch "/api/v1/workouts/#{workout.id}", headers: no_auth
+
+                expect(response.status).to eq 401
+            end
+
+            it "should reject a request sent with an invalid authorization header" do
+                bad_auth = required_headers.merge(authorization: "0")
+                patch "/api/v1/workouts/#{workout.id}", headers: bad_auth
+
+                expect(response.status).to eq 401
+            end
+
+            it "should reject a request to patch another user's workout" do
+                another_users_workout = create :workout
+                patch "/api/v1/workouts/#{another_users_workout.id}", headers: required_headers
+
+                expect(response.status).to eq 404
+            end
+        end
+
+        context "database" do
+            it "updates existing set structures sent with ID" do
+                some_other_workout = create :workout
+                body = {
+                    data: {
+                        id: "#{workout.id}",
+                        type: "workout",
+                        attributes: {},
+                        relationships: {
+                            set_structures: {
+                                data: [
+                                    {id: "#{set_1.id}", type: "set_structure" },
+                                    {id: "#{set_2.id}", type: "set_structure" }
+                                ]
+                            }
+                        }
+                    },
+                    included: [
+                        {
+                            id: "#{set_1.id}",
+                            type: "set_structure",
+                            attributes: {
+                                workout_id: "#{some_other_workout.id}",
+                                exercise_id: "#{exercise_3.id}",
+                                sets: "10",
+                                reps: "100",
+                                resistance: "1000",
+                                resistance_unit: "Kg",
+                                delete: false
+                            }
+                        }
+                    ]
+                }
+
+                original_set = SetStructure.find(set_1.id)
+
+                patch "/api/v1/workouts/#{workout.id}", headers: required_headers, params: body
+                expect(response.status).to eq 200
+
+                updated_set = SetStructure.find(set_1.id)
+
+                # ID should indicate the same record
+                expect(original_set.id).to eq updated_set.id
+
+                # Associated workout should not be different
+                expect(original_set.workout_id).to eq updated_set.workout_id
+                expect(original_set.id).to eq updated_set.id
+
+                # Associated exercise should be updated
+                expect(original_set.exercise_id).not_to eq updated_set.exercise_id
+                expect(updated_set.exercise_id).to eq exercise_3.id
+
+                # Sets should be updated
+                expect(original_set.sets).not_to eq (updated_set.sets)
+                expect(updated_set.sets).to eq 10
+
+                # Reps should be updated
+                expect(original_set.reps).not_to eq updated_set.reps
+                expect(updated_set.reps).to eq 100
+
+                # Resistance should be updated
+                expect(original_set.resistance).not_to eq updated_set.resistance
+                expect(updated_set.resistance).to eq 1000
+
+                # Resistance units should be updated
+                expect(original_set.resistance_unit).not_to eq updated_set.resistance_unit
+                expect(updated_set.resistance_unit).to eq "Kg"
+            end
+
+            it "creates new set structures sent with id not in database" do
+                body = {
+                    data: {
+                        id: "#{workout.id}",
+                        type: "workout",
+                        attributes: {},
+                        relationships: {
+                            set_structures: {
+                                data: [
+                                    {id: "#{set_1.id}", type: "set_structure" },
+                                    {id: "#{set_2.id}", type: "set_structure" }
+                                ]
+                            }
+                        }
+                    },
+                    included: [
+                        {
+                            id: "new_1234abcd",
+                            type: "set_structure",
+                            attributes: {
+                                workout_id: "#{workout.id}",
+                                exercise_id: "#{exercise_3.id}",
+                                sets: "10",
+                                reps: "100",
+                                resistance: "1000",
+                                resistance_unit: "Kg",
+                                delete: "false"
+                            }
+                        }
+                    ]
+                }
+
+                # Before request, workout should have 2 associated sets:
+                expect(workout.set_structures.count).to eq 2
+
+                patch "/api/v1/workouts/#{workout.id}", headers: required_headers, params: body
+
+                # After request, there should be 3
+                expect(workout.set_structures.count).to eq 3
+                new_set = workout.set_structures.last
+                expect([set_1.id, set_2.id].include? new_set.id).to be false
+                expect(new_set.exercise_id).to eq exercise_3.id
+            end
+
+            it "deletes set structures sent with attribute delete: true" do
+                body = {
+                    data: {
+                        id: "#{workout.id}",
+                        type: "workout",
+                        attributes: {},
+                        relationships: {
+                            set_structures: {
+                                data: [
+                                    {id: "#{set_1.id}", type: "set_structure" },
+                                    {id: "#{set_2.id}", type: "set_structure" }
+                                ]
+                            }
+                        }
+                    },
+                    included: [
+                        {
+                            id: "#{set_1.id}",
+                            type: "set_structure",
+                            attributes: {
+                                delete: "true"
+                            }
+                        }
+                    ]
+                }
+
+                # Before request, workout should have 2 set structures
+                expect(workout.set_structures.count).to eq 2
+
+                patch "/api/v1/workouts/#{workout.id}", headers: required_headers, params: body
+
+                # After request, set structure 1 should be gone
+                expect(workout.set_structures.count).to eq 1
+                expect(workout.set_structures.pluck(:id)).to eq [set_2.id]
+            end
+        end
+
+        context "response" do 
+            it "should serialize the updated workout with set structures to JSON:API standard" do
+                body = {
+                    data: {
+                        id: "#{workout.id}",
+                        type: "workout",
+                        attributes: {},
+                        relationships: {
+                            set_structures: {
+                                data: [
+                                    {id: "#{set_1.id}", type: "set_structure" },
+                                    {id: "#{set_2.id}", type: "set_structure" }
+                                ]
+                            }
+                        }
+                    },
+                    included: [
+                        {
+                            id: "#{set_1.id}",
+                            type: "set_structure",
+                            attributes: {
+                                delete: "true"
+                            }
+                        },
+                        {
+                            id: "#{set_2.id}",
+                            type: "set_structure",
+                            attributes: {
+                                workout_id: "#{workout.id}",
+                                exercise_id: "#{exercise_1.id}",
+                                sets: "10",
+                                reps: "100",
+                                resistance: "1000",
+                                resistance_unit: "Kg",
+                                delete: false
+                            }
+                        },
+                        {
+                            id: "new_1234abcd",
+                            type: "set_structure",
+                            attributes: {
+                                workout_id: "#{workout.id}",
+                                exercise_id: "#{exercise_3.id}",
+                                sets: "10",
+                                reps: "100",
+                                resistance: "1000",
+                                resistance_unit: "Kg",
+                                delete: "false"
+                            }
+                        }
+                    ]
+                }
+
+                patch "/api/v1/workouts/#{workout.id}", headers: required_headers, params: body
+
+                expected = {
+                    data: {
+                        id: "#{workout.id}",
+                        type: "workout",
+                        attributes: {completed_at: "#{workout.created_at.strftime("%A, %m/%d/%Y, %I:%M%p")}"},
+                        relationships: {
+                            set_structures: {
+                                data: [
+                                    {id: "#{set_2.id}", type: "set_structure" },
+                                    {id: "#{set_2.id + 1}", type: "set_structure" }
+                                ]
+                            }
+                        }
+                    },
+                    included: [
+                        {
+                            id: "#{set_2.id}",
+                            type: "set_structure",
+                            attributes: {
+                                sets: 10,
+                                reps: 100,
+                                name: "#{exercise_1.name}",
+                                resistance: "1000 Kg"
+                            }
+                        },
+                        {
+                            id: "#{set_2.id + 1}",
+                            type: "set_structure",
+                            attributes: {
+                                sets: 10,
+                                reps: 100,
+                                name: "#{exercise_3.name}",
+                                resistance: "1000 Kg"
+                            }
+                        }
+                    ]
+                }.to_json
+                
+                expect(JSON.parse response.body).to eq JSON.parse expected
+            end 
+        end
     end
 
     context "DELETE /:id" do
+        context "authorization" do
+            it "should reject a request sent without an authorization headers" do
+                no_auth = required_headers.reject { |k, v| k.match?("authorization") }
+                post "/api/v1/workouts", headers: no_auth
+                expect(response.status).to eq 401
+            end
 
+            it "should reject a request sent with an invalid authorization header" do
+                bad_auth = required_headers.merge(authorization: "0")
+                post "/api/v1/workouts", headers: bad_auth
+                expect(response.status).to eq 401
+            end
+        end
     end
 end
