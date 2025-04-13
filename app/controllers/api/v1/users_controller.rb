@@ -11,7 +11,7 @@ class Api::V1::UsersController < ApplicationController
     end
 
     def update
-        user = current_user(sanatize_auth_header)
+        user = current_user()
         if user
             user.update(update_user_params())
         else
@@ -20,7 +20,7 @@ class Api::V1::UsersController < ApplicationController
     end
 
     def destroy
-        to_destroy = current_user(sanatize_auth_header)
+        to_destroy = current_user()
         if to_destroy
             to_destroy.destroy
             status_code = 200
