@@ -98,7 +98,7 @@ CRUD operations are supported with a few endpoints:
 ```JSON
 {
     "data": {
-        "id": "<user's new ID">,
+        "id": "<user's new ID>",
         "type": "user",
         "attributes": {
             "first_name": "<user's first name>",
