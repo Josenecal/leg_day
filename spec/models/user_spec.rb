@@ -11,6 +11,15 @@ RSpec.describe User, type: :model do
             )
         }
 
+        it { should validate_presence_of(:first_name) }
+        it { should validate_presence_of(:last_name) }
+        it { should validate_presence_of(:email) }
+        it { should validate_presence_of(:password_digest) }
+
+        it { should validate_uniqueness_of(:email) }
+
+        it { should have_secure_password }
+
         it 'passes if valid' do
             expect valid_user.save!()
         end
@@ -85,4 +94,25 @@ RSpec.describe User, type: :model do
             expect(new_record.authenticate(given_password))
         end
     end
+
+
+  context 'class methods' do
+    context '::new_record_params' do
+      it 'should return all required fields for a new user' do
+        expected = [:first_name, :last_name, :email, :password]
+        actual = User.new_record_params
+
+        expect(actual).to eq expected
+      end
+    end
+
+    context '::updatable_params' do
+      it 'should return all user-updatable fields' do 
+        expected = [:first_name, :last_name]
+        actual = User.updatable_params
+
+        expect(actual).to eq expected
+      end
+    end
+  end
 end

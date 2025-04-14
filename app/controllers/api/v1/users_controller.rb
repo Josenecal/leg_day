@@ -4,42 +4,39 @@ class Api::V1::UsersController < ApplicationController
     def create
         new_user = User.new(new_user_params())
         if new_user.save!
-            render status: 201
+            render json: UserSerializer.new(new_user).serializable_hash, status: 201
         else
             render status: 422
         end
     end
 
     def update
-        current_user = get_current_user(id: user_id())
-        unless current_user
-            render status: 403
+        user = current_user()
+        if user
+            user.update(update_user_params())
         else
-            current_user.update(update_user_params())
+            render status: 403
         end
     end
 
     def destroy
-        to_destroy = get_current_user(id: user_id())
+        to_destroy = current_user()
         if to_destroy
             to_destroy.destroy
+            render status: 204
         else
-            render status: 403
+            render status: 401
         end
     end
 
     private
 
     def new_user_params()
-        params.permit(:first_name, :last_name, :email, :password)
+        params.permit(*User.new_record_params())
     end
 
     def update_user_params()
-        params.permit(:first_name, :last_name)
-    end
-
-    def user_id()
-        params[:id].to_i
+        params.permit(*User.updatable_params())
     end
 
 end

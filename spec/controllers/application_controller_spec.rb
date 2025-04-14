@@ -1,28 +1,26 @@
 require 'rails_helper'
+require 'pry'
 
 RSpec.describe ApplicationController, type: :controller do
-
-    subject {ApplicationController.new}
     
     context 'helper methods' do
-        context 'get current user' do
 
-            it 'finds and returns a user when passed a valid \'id\' parameter' do
-                existing_user = User.new(
-                    first_name: "Homer",
-                    last_name: "Simpson",
-                    email: "safety@springfieldnuclear.org",
-                    password: "d'oh!"
-                )
-                existing_user.save!
+        let!(:existing_user)  { create :user }
 
-                returned = subject.get_current_user(id: existing_user.id)
+        context '#current_user(id)' do
 
-                expect(returned).to eq existing_user
+            it 'finds and returns a user when passed a valid user id' do
+                controller.request.headers["Authorization"] =  "#{existing_user.id}"
+                expect(controller.current_user()).to eq existing_user
             end
 
             it 'returns nil when passed an invalid user ID' do
-                expect(subject.get_current_user(id: 0)).to eq nil
+                controller.request.headers["Authorization"] = "#{User.last.id + 1}"
+                expect(controller.current_user()).to eq nil
+            end
+
+            it 'returns nil when passed no user ID' do
+                expect(controller.current_user()).to eq nil
             end
         end
     end
