@@ -159,6 +159,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.5-x86_64-linux-musl)
       racc (~> 1.4)
+    pagy (9.3.4)
     pg (1.5.9)
     pp (0.6.2)
       prettyprint
@@ -270,6 +271,7 @@ DEPENDENCIES
   faker
   jsonapi-serializer
   jsonapi.rb
+  pagy (~> 9.3)
   pg (~> 1.1)
   pry
   puma (>= 5.0)
