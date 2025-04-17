@@ -73,11 +73,11 @@
 
 # Headers extra: http response headers (and other helpers) useful for API pagination
 # See https://ddnexus.github.io/pagy/docs/extras/headers
-# require 'pagy/extras/headers'
-# Pagy::DEFAULT[:headers] = { page: 'Current-Page',
-#                            limit: 'Page-Items',
-#                            count: 'Total-Count',
-#                            pages: 'Total-Pages' }     # default
+require 'pagy/extras/headers'
+Pagy::DEFAULT[:headers] = { page: 'Current-Page',
+                           limit: 'Page-Items',
+                           count: 'Total-Count',
+                           pages: 'Total-Pages' }     # default
 
 # Keyset extra: Paginate with the Pagy keyset pagination technique
 # See https://ddnexus.github.io/pagy/docs/extras/keyset
@@ -96,7 +96,7 @@
 # See https://ddnexus.github.io/pagy/docs/extras/metadata
 # you must require the JS Tools internal extra (BEFORE the metadata extra) ONLY if you need also the :sequels
 # require 'pagy/extras/js_tools'
-# require 'pagy/extras/metadata'
+require 'pagy/extras/metadata'
 # For performance reasons, you should explicitly set ONLY the metadata you use in the frontend
 # Pagy::DEFAULT[:metadata] = %i[scaffold_url page prev next last]   # example
 
