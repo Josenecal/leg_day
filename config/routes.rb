@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       patch "users" => "users#update"
       delete "users" => "users#destroy"
       resources :workouts, only: [:index, :show, :create, :update, :destroy]
+      resources :exercises, only: [:index]
     end
   end
 
