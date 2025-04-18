@@ -19,7 +19,6 @@ RSpec.describe ExerciseSerializer do
                     id: "#{exercise.id}",
                     type: :exercise,
                     attributes: {
-                        id: exercise.id,
                         name: "#{exercise.name}",
                         description: "#{exercise.description}"
                     },
