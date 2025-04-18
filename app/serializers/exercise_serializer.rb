@@ -3,5 +3,5 @@ class ExerciseSerializer
 
   has_many :set_structures
   has_many :workouts
-  attributes :id, :name, :description
+  attributes :name, :description
 end
