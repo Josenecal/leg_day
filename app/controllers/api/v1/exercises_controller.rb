@@ -13,6 +13,17 @@ class Api::V1::ExercisesController < ApplicationController
         render json: exercises.to_json
     end
 
+    def show()
+        exercise = Exercise.find_by(id: params[:id])
+        if exercise
+            hashed_exercise = ExerciseSerializer.new(exercise).serializable_hash
+            render json: hashed_exercise, status: 200
+        else
+            message = "Exercise ##{params[:id]} could not be found."
+            render json: {"error" => message}, status: 404
+        end
+    end
+
     private
 
     def format_pagy_links()
