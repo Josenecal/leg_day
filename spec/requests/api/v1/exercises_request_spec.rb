@@ -2,9 +2,10 @@ require 'rails_helper'
 require 'pry'
 
 RSpec.describe "/api/v1/exercises" do
+    let!(:required_headers) { {"Accept" => "application/json", "Content-Type" => "application/json"} }
+    
     context "GET /" do
         let!(:exercises) { create_list :exercise, 100 }
-        let!(:required_headers) { {"Accept" => "application/json", "Content-Type" => "application/json"} }
 
         context "request headers" do     
 
