@@ -3,7 +3,7 @@ require 'pry'
 
 RSpec.describe "/api/v1/exercises" do
     let!(:required_headers) { {"Accept" => "application/json", "Content-Type" => "application/json"} }
-    
+
     context "GET /" do
         let!(:exercises) { create_list :exercise, 100 }
 
@@ -257,7 +257,7 @@ RSpec.describe "/api/v1/exercises" do
                         get "/api/v1/exercises/#{id}", headers: required_headers
                         
                         sent_data = JSON.parse(response.body, symbolize_names: true)[:data].keys.sort
-                        expected_data = [:id, :type, :attributes, :relationships]
+                        expected_data = [:id, :type, :attributes, :relationships].sort
     
                         expect(sent_data).to eq expected_data
                     end
@@ -277,7 +277,7 @@ RSpec.describe "/api/v1/exercises" do
                         type = JSON.parse(response.body, symbolize_names: true)[:data][:type]
                         expected = "exercise"
 
-                        expect(sent_id).to eq expected
+                        expect(type).to eq expected
                     end
 
                     context ":attributes" do
@@ -285,7 +285,7 @@ RSpec.describe "/api/v1/exercises" do
                             get "/api/v1/exercises/#{id}", headers: required_headers
                         
                             sent_attrs = JSON.parse(response.body, symbolize_names: true)[:data][:attributes].keys.sort
-                            expected_attrs = [:name, :description]
+                            expected_attrs = [:name, :description].sort
         
                             expect(sent_attrs).to eq expected_attrs
                         end
@@ -303,12 +303,25 @@ RSpec.describe "/api/v1/exercises" do
                             get "/api/v1/exercises/#{id}", headers: required_headers
 
                             sent_description = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:description]
-                            expected_description = exercises.first.name
+                            expected_description = exercises.first.description
 
                             expect(sent_description).to eq expected_description
                         end
                     end
                 end
+            end
+        end
+
+        context "errors" do
+
+            it "responds 404 if exercise not found" do
+                get "/api/v1/exercises/0", headers: required_headers
+
+                expected_body = {error: "Exercise #0 could not be found."}.to_json
+                expected_status = 404
+
+                expect(response.body).to eq expected_body
+                expect(response.status).to eq expected_status
             end
         end
     end
