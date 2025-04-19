@@ -16,10 +16,14 @@ class Exercise < ApplicationRecord
     }
 
     def self.new_record_params()
-        return [:name, :muscle_groups, :equipment, :discipline, :category]
+        # return [:name, :muscle_groups, :equipment, :discipline, :category]
+        # TODO - implement user-created exercises
+        nil
     end
 
     def self.updatable_params()
-        return [:name, :muscle_groups, :equipment, :discipline, :category]
+        # return [:name, :muscle_groups, :equipment, :discipline, :category]
+        # TODO - implement user-updatable exercises
+        nil
     end
 end
