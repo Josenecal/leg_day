@@ -4,12 +4,7 @@ require 'pry'
 RSpec.describe WorkoutSerializer do
     let! (:user) { create :user }
     let! (:exercise) { create :exercise }
-    let! (:workout) {
-        Workout.create(
-            user_id: user.id,
-            created_at: DateTime.new(1970,02,25,20,00)
-        )
-    }
+    let! (:workout) { create :workout, user_id: user.id, created_at: DateTime.new(1970,02,25,20,00) }
     let! (:set_structure) { create :set_structure, workout_id: workout.id, exercise_id: exercise.id }
     
     context "serializable_hash data shape" do
