@@ -191,18 +191,20 @@ RSpec.describe "/api/v1/exercises" do
                         get "/api/v1/exercises", headers: required_headers
                         exercises = JSON.parse(response.body, symbolize_names: true)[:data]
                         exercises.each do |e|
-                            expect(e.keys.sort).to eq [:id, :type, :attributes, :relationships].sort
+                            expect(e.keys.sort).to eq [:id, :type, :attributes].sort
                             expect(e[:id]).to match /\A\d+\z/
                             expect(e[:type]).to eq "exercise"
-                            expect(e[:attributes].keys).to eq [:name, :description]
-                            expect(e[:relationships].is_a? Hash).to be true
-                            expect(e[:relationships].keys.sort).to eq [:set_structures, :workouts]
-                            expect(e[:relationships][:set_structures].is_a? Hash).to be true
-                            expect(e[:relationships][:set_structures].keys).to eq [:data]
-                            expect(e[:relationships][:set_structures][:data]).to eq []
-                            expect(e[:relationships][:workouts].is_a? Hash).to be true
-                            expect(e[:relationships][:workouts].keys).to eq [:data]
-                            expect(e[:relationships][:workouts][:data]).to eq []
+                            expect(e[:attributes].keys.sort).to eq [
+                                :name, 
+                                :category, 
+                                :equipment, 
+                                :level,
+                                :mechanic,
+                                :force,
+                                :primary_muscles,
+                                :secondary_muscles,
+                                :instructions
+                            ].sort
                         end
                     end
                 end
@@ -257,7 +259,7 @@ RSpec.describe "/api/v1/exercises" do
                         get "/api/v1/exercises/#{id}", headers: required_headers
                         
                         sent_data = JSON.parse(response.body, symbolize_names: true)[:data].keys.sort
-                        expected_data = [:id, :type, :attributes, :relationships].sort
+                        expected_data = [:id, :type, :attributes].sort
     
                         expect(sent_data).to eq expected_data
                     end
@@ -285,7 +287,17 @@ RSpec.describe "/api/v1/exercises" do
                             get "/api/v1/exercises/#{id}", headers: required_headers
                         
                             sent_attrs = JSON.parse(response.body, symbolize_names: true)[:data][:attributes].keys.sort
-                            expected_attrs = [:name, :description].sort
+                            expected_attrs = [
+                                :name,
+                                :category,
+                                :equipment,
+                                :level,
+                                :mechanic,
+                                :force,
+                                :primary_muscles,
+                                :secondary_muscles,
+                                :instructions
+                            ].sort
         
                             expect(sent_attrs).to eq expected_attrs
                         end
@@ -299,13 +311,76 @@ RSpec.describe "/api/v1/exercises" do
                             expect(sent_name).to eq expected_name
                         end
 
-                        it ":description has the expected description" do
+                        it ":category has the expected category" do
                             get "/api/v1/exercises/#{id}", headers: required_headers
 
-                            sent_description = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:description]
-                            expected_description = exercises.first.description
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:category]
+                            expected = exercises.first.category
 
-                            expect(sent_description).to eq expected_description
+                            expect(actual).to eq expected
+                        end
+
+                        it ":equipment has the expected equipment" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:equipment]
+                            expected = exercises.first.equipment
+
+                            expect(actual).to eq expected
+                        end
+
+                        it ":level has the expected level" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:level]
+                            expected = exercises.first.level
+
+                            expect(actual).to eq expected
+                        end
+
+                        it ":mechanic has the expected mechanic" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:mechanic]
+                            expected = exercises.first.mechanic
+
+                            expect(actual).to eq expected
+                        end
+
+                        it ":force has the expected force" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:force]
+                            expected = exercises.first.force
+
+                            expect(actual).to eq expected
+                        end
+
+                        it ":primary_muscles has the expected primary_muscles" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:primary_muscles]
+                            expected = exercises.first.primary_muscles
+
+                            expect(actual).to eq expected
+                        end
+
+                        it ":secondary_muscles has the expected secondary_muscles" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:secondary_muscles]
+                            expected = exercises.first.secondary_muscles
+
+                            expect(actual).to eq expected
+                        end
+
+                        it ":instructions has the expected instructions" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            actual = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:instructions]
+                            expected = exercises.first.instructions
+
+                            expect(actual).to eq expected
                         end
                     end
                 end
