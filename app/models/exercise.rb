@@ -11,9 +11,9 @@ class Exercise < ApplicationRecord
         "strongman" => 3,
         "powerlifting" => 4,
         "cardio" => 5,
-        "olympic weightlifting" => 6]
+        "olympic weightlifting" => 6
     }
-    
+
     def self.new_record_params()
         return [:name, :muscle_groups, :equipment, :discipline, :category]
     end
