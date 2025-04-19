@@ -10,19 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_29_170143) do
+ActiveRecord::Schema[7.1].define(version: 2025_04_19_172759) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "exercises", force: :cascade do |t|
     t.string "name"
-    t.string "description"
-    t.string "muscle_groups", default: [], array: true
     t.string "equipment", default: [], array: true
-    t.string "discipline"
     t.integer "category", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "force"
+    t.string "level"
+    t.string "mechanic"
+    t.string "primary_muscles", array: true
+    t.string "secondary_muscles", array: true
+    t.string "instructions", array: true
+    t.string "json_id"
   end
 
   create_table "set_structures", force: :cascade do |t|
