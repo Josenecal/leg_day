@@ -11,7 +11,7 @@
 # Seed Exercises from https://github.com/yuhonas/free-exercise-db/blob/main/dist/exercises.json
 
 data = File.read(Rails.root.join("db/seed_data/exercises.json"))
-exercises = JSON.parse(data)
+exercises = JSON.parse(data, symbolize_names: true)
 
 exercises.each do |e|
     exercise = Exercise.new(
@@ -25,4 +25,8 @@ exercises.each do |e|
         category: e[:category],
         json_id: e[:id]
     )
+
+    exercise.transaction do
+        exercise.save!
+    end
 end
