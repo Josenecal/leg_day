@@ -7,7 +7,7 @@ RSpec.describe "/api/v1/exercises" do
         let!(:required_headers) { {"Accept" => "application/json", "Content-Type" => "application/json"} }
 
         context "request headers" do     
-            
+
             it "requires only generally required headers, 'accepts' and 'content-type'" do
                 get "/api/v1/exercises", headers: {"Accept" => "application/json", "Content-Type" => "application/json"}
 
@@ -207,6 +207,108 @@ RSpec.describe "/api/v1/exercises" do
                 end
             end
 
+        end
+    end
+
+    context "GET /:id" do
+        let!(:exercises) { create_list :exercise, 5 }
+        let!(:id) { exercises.first.id }
+        context "request" do
+            context "headers" do
+                it "requires only generally required headers, 'accepts' and 'content-type'" do
+                    get "/api/v1/exercises/#{id}", headers: {"Accept" => "application/json", "Content-Type" => "application/json"}
+    
+                    expect(response.status).to eq 200
+                end
+    
+                it "responds 400 with a message if a required header is missing" do
+                    get "/api/v1/exercises/#{id}", headers: {"Accept" => "application/json"}
+                    expected_message = {"error" => "Required header Content-Type is missing."}.to_json
+    
+                    expect(response.status).to eq 400
+                    expect(response.body).to eq expected_message
+                end
+    
+                it "responds 400 with a helpful message if a required header is not set to \"application/json\"" do
+                    get "/api/v1/exercises/#{id}", headers: {"Accept" => "text/html", "Content-Type" => "text/html"}
+                    expected_message = {"error" => "\"Accept\" and \"Content-Type\" headers must be \"application/json\"."}.to_json
+    
+                    expect(response.status).to eq 400
+                    expect(response.body).to eq expected_message
+                end
+            end
+        end
+
+        context "response" do
+            context "shape" do
+                it "has the expected JSON:API top level objects" do
+                    get "/api/v1/exercises/#{id}", headers: required_headers
+
+                    sent_objects = JSON.parse(response.body, symbolize_names: true).keys.sort
+                    expected_objects = [:data]
+
+                    expect(sent_objects).to eq expected_objects
+                end
+
+                context ":data" do
+
+                    it "has the expected JSON:API keys" do
+                        get "/api/v1/exercises/#{id}", headers: required_headers
+                        
+                        sent_data = JSON.parse(response.body, symbolize_names: true)[:data].keys.sort
+                        expected_data = [:id, :type, :attributes, :relationships]
+    
+                        expect(sent_data).to eq expected_data
+                    end
+
+                    it ":id is a numeric string" do
+                        get "/api/v1/exercises/#{id}", headers: required_headers
+
+                        sent_id = JSON.parse(response.body, symbolize_names: true)[:data][:id]
+                        expected = /\A\d+\z/
+
+                        expect(sent_id).to match expected
+                    end
+
+                    it ":type is sent as exercise" do
+                        get "/api/v1/exercises/#{id}", headers: required_headers
+
+                        type = JSON.parse(response.body, symbolize_names: true)[:data][:type]
+                        expected = "exercise"
+
+                        expect(sent_id).to eq expected
+                    end
+
+                    context ":attributes" do
+                        it "has the expected keys" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+                        
+                            sent_attrs = JSON.parse(response.body, symbolize_names: true)[:data][:attributes].keys.sort
+                            expected_attrs = [:name, :description]
+        
+                            expect(sent_attrs).to eq expected_attrs
+                        end
+
+                        it ":name has the expected name" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            sent_name = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:name]
+                            expected_name = exercises.first.name
+
+                            expect(sent_name).to eq expected_name
+                        end
+
+                        it ":description has the expected description" do
+                            get "/api/v1/exercises/#{id}", headers: required_headers
+
+                            sent_description = JSON.parse(response.body, symbolize_names: true)[:data][:attributes][:description]
+                            expected_description = exercises.first.name
+
+                            expect(sent_description).to eq expected_description
+                        end
+                    end
+                end
+            end
         end
     end
 end
