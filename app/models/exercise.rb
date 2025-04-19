@@ -3,6 +3,7 @@ class Exercise < ApplicationRecord
     has_many :workouts, through: :set_structures
     validates :name, presence: true
     validates :category, presence: true
+    validates :instructions, presence: true
 
     enum category: {
         "strength" => 0,
