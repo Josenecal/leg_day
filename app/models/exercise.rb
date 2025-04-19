@@ -5,11 +5,15 @@ class Exercise < ApplicationRecord
     validates :category, presence: true
 
     enum category: {
-        "Aerobic" => 0,
-        "Resistance" => 1,
-        "Calisthenic" => 2,
-        "Flexibility" => 3
+        "strength" => 0,
+        "stretching" => 1,
+        "plyometrics" => 2,
+        "strongman" => 3,
+        "powerlifting" => 4,
+        "cardio" => 5,
+        "olympic weightlifting" => 6]
     }
+    
     def self.new_record_params()
         return [:name, :muscle_groups, :equipment, :discipline, :category]
     end
