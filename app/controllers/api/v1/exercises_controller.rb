@@ -5,7 +5,7 @@ class Api::V1::ExercisesController < ApplicationController
     after_action { pagy_headers_merge(@pagy) if @pagy }
 
     def index()
-        exercises = Exercise.all.order(:id)
+        exercises = find_by_params
         @pagy, @records = pagy(exercises)
         exercises = ExerciseSerializer.new(@records).serializable_hash
         exercises.merge!(meta: format_pagy_meta(), links: format_pagy_links())
@@ -14,7 +14,7 @@ class Api::V1::ExercisesController < ApplicationController
     end
 
     def show()
-        exercise = Exercise.find_by(id: params[:id])
+        exercise = find_by_id
         if exercise
             hashed_exercise = ExerciseSerializer.new(exercise).serializable_hash
             render json: hashed_exercise, status: 200
@@ -25,6 +25,40 @@ class Api::V1::ExercisesController < ApplicationController
     end
 
     private
+
+    def find_by_id()
+        Exercise.find_by(id: params[:id])
+    end
+
+    def find_by_params()
+        query = format_search_query
+
+        exercises = query.empty? ? Exercise.all : Exercise.where(query)
+
+        return exercises
+    end
+
+    def format_search_query()
+        query = String.new
+
+        search_params.each do |key, q|
+            parts = q.split(' ')
+            sub_query = String.new
+            parts.each do |part|
+                new_part = "#{Exercise.column_for(key)} ILIKE '%#{part}%'"
+                sub_query = sub_query.empty? ? new_part : sub_query + "OR " + new_part
+            end
+            query = query.empty? ? "(" + sub_query + ")" : query + "AND (" + sub_query + ")"
+        end
+
+        # require 'pry'; binding.pry
+
+        return query
+    end
+
+    def search_params()
+        params.permit(:name, :category, :level).to_h.symbolize_keys
+    end
 
     def format_pagy_links()
         links_hash = {

@@ -15,6 +15,14 @@ class Exercise < ApplicationRecord
         "olympic weightlifting" => 6
     }
 
+    def self.column_for(key)
+        {
+            name: "name", 
+            category: "category", 
+            level: "level"
+        }[key]
+    end
+
     def self.new_record_params()
         # return [:name, :muscle_groups, :equipment, :discipline, :category]
         # TODO - implement user-created exercises
