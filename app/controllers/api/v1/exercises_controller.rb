@@ -33,7 +33,7 @@ class Api::V1::ExercisesController < ApplicationController
     def find_by_params()
         query = format_search_query
 
-        exercises = query.empty? ? Exercise.all : Exercise.where(query)
+        exercises = query.empty? ? Exercise.all.order(:id) : Exercise.where(query).order(:id)
 
         return exercises
     end
