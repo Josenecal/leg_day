@@ -2,6 +2,11 @@
 
 Welcome to the Leg dAPI, a backend application that supports users planing and tracking their own workouts. The concept for this project came to me while I was working out in the gym, and realized that I couldn't for the life of me remember what weights I was using in my last workout. I realized that what I needed was a simple way to track my weight lifting workouts, and that having a database of different lifts at my fingertips wouldn't hurt either.
 
+## Attributions
+
+### Clint Plummer: `free-exercise-db`
+Special thanks go out to [Clint Plummer](https://github.com/yuhonas) for contributing an open-source, public-domain dataset of exercises in the [Free Exercise Database](https://github.com/yuhonas/free-exercise-db/). This dataset was used to seed the original 873 exercises in the Leg Day database, and are a critical contribution without wich the Leg Day project simply would not be possible. 
+
 ## Current State
 
 This project is still under construction. Some features are not yet implemented, including
@@ -69,6 +74,9 @@ CRUD operations are supported with a few endpoints:
 | [POST `/api/v1/workouts`](#post-apiv1workouts) | creates a new workout in the `workouts` table, as well as any dependent set structures in the `set_structures` table |
 | [PUT/PATCH `/api/v1/workouts/:id`](#putpatch-apiv1workoutsid) | updates set structures associated with a workout |
 | [DELETE `/api/v1/workouts/:id`](#delete-apiv1workoutsid) | delete a specific workout and its set structures |
+| **Exercises** ||
+| [GET `/api/v1/exercises`](#get-apiv1exercises) | gets a paginated list of all exercises in JSON format |
+| [GET `/api/v1/exercises/:id`](#get-apiv1exercisesid) | shows a specific exercise in detail |
 
 ## User Endpoints
 
@@ -576,3 +584,167 @@ This endpoint allows an authorized user to permenantly delete a `workout` and it
 
 `Status 404`
 `Status 401`
+
+---
+
+## Exercises
+
+### GET `/api/v1/exercises`
+
+This endpoint will provide an index of all exercises in the database. By default, the response is paginated with 20 items per page. The JSON response will include top-level `meta` and `links` objects to support front-end pagination. The endpoint itself will accept a `page` query param to support navigation.
+
+No authorization is necessary to access this endpoint.
+
+#### REQUIRED HEADERS
+
+```JSON
+{
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
+```
+
+#### PAGINATION QUERY PARAMS
+
+| key | value | constraints |
+| --- | --- | --- |
+| page | 1,2,3...n | page number must be between 1 and the total number of pages (see metadata["total_pages"])
+
+#### SEARCH PARAMS
+
+| key | value | constraints |
+| --- | --- | --- |
+| `name` | any string | must be URI-encoded |
+| `category` | current values include: "strength", "stretching", "plyometrics", "strongman", "powerlifting", "cardio", and "olympic weightlifting" | searching for other values will return an empty result. |
+| `level` | current values include: "beginner", "intermediate", and "expert" | searching for other values will return an empty result. |
+
+
+
+#### SUCCESFUL RESPONSE
+
+```JSON
+{
+    "data": [
+        {
+            "id": "1",
+            "type": "exercise",
+            "attributes": {
+                "name": "3/4 Sit-Up",
+                "category": "strength",
+                "equipment": [
+                    "body only"
+                ],
+                "level": "beginner",
+                "mechanic": "compound",
+                "force": null,
+                "primary_muscles": [
+                    "abdominals"
+                ],
+                "secondary_muscles": [],
+                "instructions": [
+                    "Lie down on the floor and secure your feet. Your legs should be bent at the knees.",
+                    "Place your hands behind or to the side of your head. You will begin with your back on the ground. This will be your starting position.",
+                    "Flex your hips and spine to raise your torso toward your knees.",
+                    "At the top of the contraction your torso should be perpendicular to the ground. Reverse the motion, going only ¾ of the way down.",
+                    "Repeat for the recommended amount of repetitions."
+                ]
+            }
+        },
+
+        ...
+
+        {
+            "id": "234",
+            "type": "exercise",
+            "attributes": {
+                "name": "Dumbbell Lying Supination",
+                "category": "strength",
+                "equipment": [
+                    "dumbbell"
+                ],
+                "level": "intermediate",
+                "mechanic": "isolation",
+                "force": null,
+                "primary_muscles": [
+                    "forearms"
+                ],
+                "secondary_muscles": [],
+                "instructions": [
+                    "Lie sideways on a flat bench with one arm holding a dumbbell and the other hand on top of the bench folded so that you can rest your head on it.",
+                    "Bend the elbows of the arm holding the dumbbell so that it creates a 90-degree angle between the upper arm and the forearm.",
+                    "Now raise the upper arm so that the forearm is parallel to the floor and perpendicular to your torso (Tip: So the forearm will be directly in front of you). The upper arm will be stationary by your torso and should be parallel to the floor (aligned with your torso at all times). This will be your starting position.",
+                    "As you breathe out, externally rotate your forearm so that the dumbbell is lifted up in a semicircle motion as you maintain the 90 degree angle bend between the upper arms and the forearm. You will continue this external rotation until the forearm is perpendicular to the floor and the torso pointing towards the ceiling. At this point you will hold the contraction for a second.",
+                    "As you breathe in, slowly go back to the starting position.",
+                    "Repeat for the recommended amount of repetitions and then switch to the other arm."
+                ]
+            }
+        }
+    ],
+    "meta": {
+        "current_page": 1,
+        "total_pages": 5,
+        "total_items": 93,
+        "per_page": 20
+    },
+    "links": {
+        "self": "http://localhost:3000/api/v1/exercises?page=1",
+        "first": "http://localhost:3000/api/v1/exercises?page=1",
+        "last": "http://localhost:3000/api/v1/exercises?page=5",
+        "prev": null,
+        "next": "http://localhost:3000/api/v1/exercises?page=2"
+    }
+}
+```
+
+#### UNSUCCESSFUL RESPONSE
+`Status 500`
+
+---
+### GET `/api/v1/exercises/:id`
+
+This endpoint allows users to request detailed information about 1 exercise by adding its specific ID. 
+
+#### REQUIRED HEADERS
+
+```JSON
+{
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
+```
+
+#### SUCCESSFUL RESPONSE
+
+```JSON
+{
+    "data": {
+        "id": "1",
+        "type": "exercise",
+        "attributes": {
+            "name": "3/4 Sit-Up",
+            "category": "strength",
+            "equipment": [
+                "body only"
+            ],
+            "level": "beginner",
+            "mechanic": "compound",
+            "force": null,
+            "primary_muscles": [
+                "abdominals"
+            ],
+            "secondary_muscles": [],
+            "instructions": [
+                "Lie down on the floor and secure your feet. Your legs should be bent at the knees.",
+                "Place your hands behind or to the side of your head. You will begin with your back on the ground. This will be your starting position.",
+                "Flex your hips and spine to raise your torso toward your knees.",
+                "At the top of the contraction your torso should be perpendicular to the ground. Reverse the motion, going only ¾ of the way down.",
+                "Repeat for the recommended amount of repetitions."
+            ]
+        }
+    }
+}
+```
+
+#### UNSUCCESSFUL RESPONSE
+`Status 404`
+`Status 500`
