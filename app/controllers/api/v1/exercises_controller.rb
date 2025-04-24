@@ -31,6 +31,7 @@ class Api::V1::ExercisesController < ApplicationController
     end
 
     def find_by_params()
+        sub_queries = []
         query = format_search_query
 
         exercises = query.empty? ? Exercise.all.order(:id) : Exercise.where(query).order(:id)
@@ -40,8 +41,8 @@ class Api::V1::ExercisesController < ApplicationController
 
     def format_search_query()
         query = String.new
-
-        search_params.each do |key, q|
+        
+        search_params(:string).each do |key, q|
             parts = q.split(' ')
             sub_query = String.new
             parts.each do |part|
@@ -50,14 +51,31 @@ class Api::V1::ExercisesController < ApplicationController
             end
             query = query.empty? ? "(" + sub_query + ")" : query + "AND (" + sub_query + ")"
         end
-
-        # require 'pry'; binding.pry
-
+        
+        search_params(:enumerated).each do 
+            |key, q|
+            parts = q.split(' ')
+            sub_query = String.new
+            parts.each do |part|
+                enumerated = Exercise.categories[:"#{part}"]
+                next unless enumerated
+                
+                new_part = "#{Exercise.column_for(key)} = #{enumerated}"
+                sub_query = sub_query.empty? ? new_part : sub_query + "OR " + new_part
+            end
+            query = query.empty? ? "(" + sub_query + ")" : query + "AND (" + sub_query + ")"
+        end
+        
         return query
     end
 
-    def search_params()
-        params.permit(:name, :category, :level).to_h.symbolize_keys
+    def search_params(type = nil)
+        case type
+        when :string
+                params.permit(:name, :level).to_h.symbolize_keys
+        when :enumerated
+                params.permit(:category).to_h.symbolize_keys
+        end
     end
 
     def format_pagy_links()
