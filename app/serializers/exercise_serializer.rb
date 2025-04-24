@@ -1,7 +1,15 @@
 class ExerciseSerializer
   include JSONAPI::Serializer
 
-  has_many :set_structures
-  has_many :workouts
-  attributes :id, :name, :description
+  attributes(
+    :name,
+    :category,
+    :equipment,
+    :level,
+    :mechanic,
+    :force,
+    :primary_muscles,
+    :secondary_muscles,
+    :instructions
+  )
 end

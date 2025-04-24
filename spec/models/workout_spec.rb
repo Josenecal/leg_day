@@ -1,35 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Workout, type: :model do
-  let! (:user) {
-    User.create(
-      first_name: "Leopold",
-      last_name: "Loggle",
-      email: "leopold.loggle@logglesgeneral.wart",
-      password: "gains"
-    )
-  }
+  let! (:user) { create :user }
 
-  let! (:exercise_1) {
-    Exercise.create(
-      name: "squats",
-      category: 0
-    )
-  }
+  let! (:exercise_1) { create :exercise }
 
-  let! (:exercise_2) {
-    Exercise.create(
-      name: "warmup run",
-      category: 1
-    )
-  }
+  let! (:exercise_2) { create :exercise }
 
-  let! (:exercise_3) {
-    Exercise.create(
-      name: "dumbbell curls",
-      category: 1
-    )
-  }
+  let! (:exercise_3) { create :exercise }
   
   context 'association' do
     it { should belong_to(:user) }
