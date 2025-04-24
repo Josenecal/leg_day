@@ -168,6 +168,28 @@ RSpec.describe Exercise, type: :model do
 
         expect(actual).to eq expected
       end
+
+      context "::column_for()" do 
+        let(:searchable_columns) { [:name, :level, :category] }
+        let(:unsearchable) { Exercise.new.attributes.keys.map { |k| :"#{k}" }.reject { |k| searchable_columns.include? k } }
+
+        it "should return searchable columns in string format" do
+          searchable_columns.each do |sym|
+            expected = sym.to_s
+            actual = Exercise.column_for(sym)
+
+            expect(actual).to eq expected
+          end
+        end
+
+        it "should return nil for unsearchable columns" do
+          unsearchable.each do |sym|
+            expect(sym.is_a? Symbol).to be true
+            expect(Exercise.column_for(sym)).to eq nil
+          end
+        end
+
+      end
     end
   end
 end
