@@ -33,6 +33,46 @@ RSpec.describe "/api/v1/exercises" do
         end
 
         context "response" do
+            context "searching by params" do
+                it "finds exercises by name, including partial matches" do
+                    hex = SecureRandom.hex(16)
+                    partial = hex[8...24]
+                    target = create(:exercise, name: hex)
+
+                    get "/api/v1/exercises?name=#{partial}", headers: required_headers
+
+                    expected = target.id
+                    actual = JSON.parse(response.body, symbolize_names: true)[:data].first[:id].to_i
+
+                    expect(actual).to eq expected
+                end
+
+                it "finds exercises by level" do
+                    hex = SecureRandom.hex(16)
+                    partial = hex[8...24]
+                    target = create(:exercise, level: hex)
+
+                    get "/api/v1/exercises?level=#{partial}", headers: required_headers
+
+                    expected = target.id
+                    actual = JSON.parse(response.body, symbolize_names: true)[:data].first[:id].to_i
+
+                    expect(actual).to eq expected
+                end
+
+                it "finds exercises by category" do
+                    category = Exercise.categories.keys.sample
+
+                    get "/api/v1/exercises?category=#{category}", headers: required_headers
+
+                    expected = Exercise.where(category: category).pluck(:id).sort
+
+                    actual = JSON.parse(response.body, symbolize_names: true)[:data].pluck(:id).map { |id| id.to_i }.sort
+
+                    expect(actual).to eq expected
+                end
+            end
+
             context "shape" do
 
                 it "has the expected top-level objects" do
