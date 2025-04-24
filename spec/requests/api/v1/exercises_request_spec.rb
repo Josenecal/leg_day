@@ -65,7 +65,7 @@ RSpec.describe "/api/v1/exercises" do
 
                     get "/api/v1/exercises?category=#{category}", headers: required_headers
 
-                    expected = Exercise.where(category: category).pluck(:id).sort
+                    expected = Exercise.where(category: category).order(:id).limit(20).pluck(:id).sort
 
                     actual = JSON.parse(response.body, symbolize_names: true)[:data].pluck(:id).map { |id| id.to_i }.sort
 
