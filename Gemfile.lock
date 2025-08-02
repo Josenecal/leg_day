@@ -122,6 +122,8 @@ GEM
     jsonapi.rb (2.1.1)
       jsonapi-serializer
       rack
+    jwt (3.1.2)
+      base64
     logger (1.6.6)
     loofah (2.24.0)
       crass (~> 1.0.2)
@@ -276,6 +278,7 @@ DEPENDENCIES
   faker
   jsonapi-serializer
   jsonapi.rb
+  jwt
   pagy (~> 9.3)
   pg (~> 1.1)
   pry
