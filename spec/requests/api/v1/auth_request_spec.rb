@@ -31,7 +31,7 @@ RSpec.describe 'api/v1/sessions' do
                     "status": 200,
                     "code": "OK",
                     "message": "Authentication Successful",
-                    "token": nil # update this assertion once you have a testing solution
+                    "token": nil # force to fail until the JWT infrastructure is up and usable
                 }
             }
 
@@ -44,38 +44,38 @@ RSpec.describe 'api/v1/sessions' do
             
             it 'returns 401 if there is no password' do
                 bad_request_body = correct_body.except :password
-                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
+                post "/api/v1/auth", headers: required_headers, params: bad_request_body
 
-                expect(JSON.parse(response.body)).to eq expected_failure_response
+                expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_failure_response
             end
 
             it 'returns 401 if there is no email' do
                 bad_request_body = correct_body.except :email
-                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
+                post "/api/v1/auth", headers: required_headers, params: bad_request_body
 
-                expect(JSON.parse(response.body)).to eq expected_failure_response
+                expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_failure_response
             end
 
             it 'returns 401 if the password is incorrect' do
                 bad_request_body = correct_body
                 bad_request_body[:password] = "these_are_not_my_glasses"
-                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
+                post "/api/v1/auth", headers: required_headers, params: bad_request_body
 
-                expect(JSON.parse(response.body)).to eq expected_failure_response
+                expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_failure_response
             end
 
             it 'returns 401 if the password belongs to a different user' do
                 other_users_password = create(:user).password
                 bad_request_body = correct_body.merge({password: "#{other_users_password}"})
-                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
+                post "/api/v1/auth", headers: required_headers, params: bad_request_body
 
-                expect(JSON.parse(response.body)).to eq expected_failure_response
+                expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_failure_response
             end
 
             it 'returns 200 if the password is correct' do 
-                post "/api/v1/auth", headers: correct_body
+                post "/api/v1/auth", headers: required_headers, params: correct_body
 
-                expect(JSON.parse(response.body)).to eq expected_successful_response
+                expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_successful_response
             end
         end
     end
