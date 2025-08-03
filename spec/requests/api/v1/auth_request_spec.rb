@@ -39,43 +39,43 @@ RSpec.describe 'api/v1/sessions' do
                 {
                     "email": "#{user.email}",
                     "password": "#{user.password}"
-                }
+                }.merge(required_headers)
             }
             
             it 'returns 401 if there is no password' do
                 bad_request_body = correct_body.except :password
-                post "/api/v1/sessions/login", headers: bad_request_body
+                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
 
-                expect(response).to eq expected_failure_response
+                expect(JSON.parse(response.body)).to eq expected_failure_response
             end
 
             it 'returns 401 if there is no email' do
                 bad_request_body = correct_body.except :email
-                post "/api/v1/sessions/login", headers: bad_request_body
+                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
 
-                expect(response).to eq expected_failure_response
+                expect(JSON.parse(response.body)).to eq expected_failure_response
             end
 
             it 'returns 401 if the password is incorrect' do
                 bad_request_body = correct_body
                 bad_request_body[:password] = "these_are_not_my_glasses"
-                post "/api/v1/sessions/login", headers: bad_request_body
+                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
 
-                expect(response).to eq expected_failure_response
+                expect(JSON.parse(response.body)).to eq expected_failure_response
             end
 
             it 'returns 401 if the password belongs to a different user' do
                 other_users_password = create(:user).password
                 bad_request_body = correct_body.merge({password: "#{other_users_password}"})
-                post "/api/v1/sessions/login", headers: bad_request_body
+                post "/api/v1/auth", headers: bad_request_body.merge(required_headers)
 
-                expect(response).to eq expected_failure_response
+                expect(JSON.parse(response.body)).to eq expected_failure_response
             end
 
             it 'returns 200 if the password is correct' do 
-                post "/api/v1/sessions/login", headers: correct_body
+                post "/api/v1/auth", headers: correct_body
 
-                expect(response).to eq expected_successful_response
+                expect(JSON.parse(response.body)).to eq expected_successful_response
             end
         end
     end

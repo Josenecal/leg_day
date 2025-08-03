@@ -13,6 +13,9 @@ Rails.application.routes.draw do
       delete "users" => "users#destroy"
       resources :workouts, only: [:index, :show, :create, :update, :destroy]
       resources :exercises, only: [:index, :show]
+
+      # auth endpoints
+      post "auth" => "auth#login"
     end
   end
 
