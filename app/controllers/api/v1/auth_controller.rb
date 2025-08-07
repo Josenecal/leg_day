@@ -37,11 +37,20 @@ class Api::V1::AuthController < ApplicationController
 
     def generate_token(user)
         #We need to decide on an encoding strategy, and determine what data to actually encode.
-        payload = user.token_attributes #still need to define this 
+        payload = tokenize(user) 
         algorithm = ENV['JWT_STRAT']
         secret = ENV['JWT_SECRET']
         
         JWT.encode(payload, secret, algorithm)
+    end
+
+    def tokenize(user)
+        {
+            data: {
+                id: user.id,
+            },
+            expires: "Test Value" # Come fix this later when you understand the format from the docs
+        }
     end
 
 end
