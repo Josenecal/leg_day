@@ -4,7 +4,6 @@ class ApplicationController < ActionController::API
     def check_required_headers()
         required = ["Accept", "Content-Type"]
         missing = required.reduce([]) { |acc, h| request.headers.include?(h) ? acc : acc << h }
-        # require 'pry'; binding.pry
         if missing.present?
             multiple = missing.count > 1
             message = "Required #{ multiple ? "headers" : "header" } #{missing.join(", ")} #{ multiple ? "are" : "is" } missing."

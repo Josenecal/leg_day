@@ -36,7 +36,6 @@ class Api::V1::AuthController < ApplicationController
     end
 
     def generate_token(user)
-        #We need to decide on an encoding strategy, and determine what data to actually encode.
         payload = tokenize(user) 
         algorithm = ENV['JWT_STRAT']
         secret = ENV['JWT_SECRET']
