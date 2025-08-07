@@ -36,10 +36,9 @@ class Api::V1::AuthController < ApplicationController
     end
 
     def generate_token(user)
-        payload = tokenize(user) 
         algorithm = ENV['JWT_STRAT']
         secret = ENV['JWT_SECRET']
-        
+        payload = tokenize(user) 
         JWT.encode(payload, secret, algorithm)
     end
 
@@ -48,8 +47,13 @@ class Api::V1::AuthController < ApplicationController
             data: {
                 id: user.id,
             },
-            expires: "Test Value" # Come fix this later when you understand the format from the docs
+            expires: Time.now.to_i + format_delay()
         }
+    end
+
+    def format_delay()
+        # Currently just a hard-coded 24 hours
+        return 86400
     end
 
 end
