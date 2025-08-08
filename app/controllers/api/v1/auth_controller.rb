@@ -30,7 +30,7 @@ class Api::V1::AuthController < ApplicationController
         {
             status: 200,
             code: "OK",
-            message: "Authentication Successful",
+            message: "Authentication successful.",
             token: generate_token(user)
         }
     end

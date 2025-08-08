@@ -72,9 +72,31 @@ RSpec.describe 'api/v1/sessions' do
                 post "/api/v1/auth", headers: required_headers, params: correct_body
 
                 expect(response.status).to eq 200
+
+                body = JSON.parse response.body
+                expect(body.keys.sort).to eq ["status", "code", "message", "token"].sort
+                expect(body["status"]).to eq 200
+                expect(body["code"]).to eq "OK"
+                expect(body["message"]).to eq "Authentication successful."
+                expect(body["token"]).to match /\A[\w\d\.]+\Z/
             end
 
             context "token" do
+                it "is issued as an encoded string" do
+                    Timecop.freeze(Time.now)
+                    payload = {
+                        data: {
+                            id: user.id,
+                        },
+                        expires: Time.now.to_i + 86400
+                    }
+                    expected_token = JWT.encode(payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+
+                    post "/api/v1/auth", headers: required_headers, params: correct_body
+                    issued_token = JSON.parse(response.body)["token"]
+
+                    expect(issued_token).to eq expected_token
+                end
 
                 it "contains expected payload" do
                     Timecop.freeze(Time.now)
