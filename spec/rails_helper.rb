@@ -1,5 +1,8 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 
+# Initialize Timecop
+require 'timecop'
+
 # Initialize simplecov:
 require 'simplecov'
 SimpleCov.start
