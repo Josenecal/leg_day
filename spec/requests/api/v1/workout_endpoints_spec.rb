@@ -3,6 +3,15 @@ require 'pry'
 
 RSpec.describe "/api/v1/exercises", type: :request do
     let! (:user) { create :user }
+    let! (:auth) {
+        payload = {
+            data: {
+                id: user.id,
+            },
+            expires: Time.now.to_i + 86400
+        }
+        JWT.encode(payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+    }
     let! (:required_headers) {
             {
                 content_type: "application/json",
@@ -21,9 +30,35 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "responds 401 if auth references a non-existant user" do
-                bad_user_auth = required_headers.merge(authorization: "0")
+                bad_payload = {
+                    data: {
+                        id: 0,
+                    },
+                    expires: Time.now.to_i + 86400
+                }
+                bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
                 
-                get "/api/v1/workouts", headers: bad_user_auth
+                get "/api/v1/workouts", headers: required_headers.merge {authorization: bad_token}
+                expect(response.status.to_i).to eq 401
+            end
+
+            it "responds 401 if the authorization is not a vlid JWT" do
+                bad_token = "#{SecureRandom.hex(15)}.#{SecureRandom.hex(25)}.#{SecureRandom.hex(25)}"
+                
+                get "/api/v1/workouts", headers: required_headers.merge {authorization: bad_token}
+                expect(response.status.to_i).to eq 401
+            end
+
+            it "responds 401 if the token is expired" do
+                bad_payload = {
+                    data: {
+                        id: 0,
+                    },
+                    expires: Time.now.to_i - 86400
+                }
+                bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+                
+                get "/api/v1/workouts", headers: required_headers.merge {authorization: bad_token}
                 expect(response.status.to_i).to eq 401
             end
 
