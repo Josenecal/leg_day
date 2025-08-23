@@ -16,7 +16,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
             {
                 content_type: "application/json",
                 accept: "application/json",
-                authorization: "#{user.id}"
+                authorization: auth
             }
         }
 
@@ -38,14 +38,14 @@ RSpec.describe "/api/v1/exercises", type: :request do
                 }
                 bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
                 
-                get "/api/v1/workouts", headers: required_headers.merge {authorization: bad_token}
+                get "/api/v1/workouts", headers: (required_headers.merge({authorization: bad_token}))
                 expect(response.status.to_i).to eq 401
             end
 
             it "responds 401 if the authorization is not a vlid JWT" do
                 bad_token = "#{SecureRandom.hex(15)}.#{SecureRandom.hex(25)}.#{SecureRandom.hex(25)}"
                 
-                get "/api/v1/workouts", headers: required_headers.merge {authorization: bad_token}
+                get "/api/v1/workouts", headers: (required_headers.merge({authorization: bad_token}))
                 expect(response.status.to_i).to eq 401
             end
 
@@ -58,7 +58,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
                 }
                 bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
                 
-                get "/api/v1/workouts", headers: required_headers.merge {authorization: bad_token}
+                get "/api/v1/workouts", headers: (required_headers.merge({authorization: bad_token}))
                 expect(response.status.to_i).to eq 401
             end
 
@@ -68,7 +68,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
         end
 
-        context "response" do
+        context "response" do # TODO: START HERE WITH TEST REFACTORS
             let! (:workout_1) { create :workout, user: user }
             let! (:workout_2) { create :workout, user: user }
 
@@ -143,14 +143,22 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "responds 401 if auth references a non-existant user" do
-                bad_user_auth = required_headers.merge(authorization: "0")
+                bad_payload = {
+                    data: {
+                        id: 0,
+                    },
+                    expires: Time.now.to_i + 86400
+                }
+                bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+                bad_user_auth = required_headers.merge(authorization: bad_token)
                 
                 get "/api/v1/workouts/#{workout_1.id}", headers: bad_user_auth
                 expect(response.status.to_i).to eq 401
             end
 
             it "responds 401 if requesting a workout not belonging to a user" do
-                someone_elses_wrkt = create(:workout)
+                other_user = create :user
+                someone_elses_wrkt = create(:workout, user_id: other_user.id)
                 get "/api/v1/workouts/#{someone_elses_wrkt.id}", headers: required_headers
                 expect(response.status.to_i).to eq 404
             end
@@ -256,7 +264,14 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "should reject a request sent with an invalid authorization header" do
-                bad_auth = required_headers.merge(authorization: "0")
+                bad_payload = {
+                    data: {
+                        id: 0,
+                    },
+                    expires: Time.now.to_i + 86400
+                }
+                bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+                bad_auth = required_headers.merge(authorization: bad_token)
                 post "/api/v1/workouts", headers: bad_auth
                 expect(response.status).to eq 401
             end
@@ -264,10 +279,6 @@ RSpec.describe "/api/v1/exercises", type: :request do
 
 
         context "errors" do
-            it "should return an error if required params for new workout are missing" do
-                # Placeholder - This is currently impossible, as the only required param is 
-                # user_id, which is taken from auth. Auth failure is tested separately.
-            end
 
             it "should return an error if the required params for any set structure are missing" do
                 bad_ss_1_attrs = serialized_workout[:included].first[:attributes]
@@ -363,14 +374,21 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "should reject a request sent with an invalid authorization header" do
-                bad_auth = required_headers.merge(authorization: "0")
+                bad_payload = {
+                    data: {
+                        id: 0,
+                    },
+                    expires: Time.now.to_i + 86400
+                }
+                bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+                bad_auth = required_headers.merge(authorization: bad_token)
                 patch "/api/v1/workouts/#{workout.id}", headers: bad_auth
 
                 expect(response.status).to eq 401
             end
 
             it "should reject a request to patch another user's workout" do
-                another_users_workout = create :workout
+                another_users_workout = create :workout, user_id: other_user.id
                 patch "/api/v1/workouts/#{another_users_workout.id}", headers: required_headers
 
                 expect(response.status).to eq 404
@@ -640,13 +658,20 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "should reject a request sent with an invalid authorization header" do
-                bad_auth = required_headers.merge(authorization: "0")
+                bad_payload = {
+                    data: {
+                        id: 0,
+                    },
+                    expires: Time.now.to_i + 86400
+                }
+                bad_token = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+                bad_auth = required_headers.merge(authorization: bad_token)
                 delete "/api/v1/workouts/#{workout.id}", headers: bad_auth
                 expect(response.status).to eq 401
             end
 
             it "should reject a request to delete another user's workout" do
-                another_users_workout = create :workout
+                another_users_workout = create :workout, user_id: other_user.id
                 delete "/api/v1/workouts/#{another_users_workout.id}", headers: required_headers
                 expect(response.status).to eq 404
             end
