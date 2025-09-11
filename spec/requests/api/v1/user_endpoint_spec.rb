@@ -74,11 +74,20 @@ RSpec.describe '/api/v1/user' do
             )
         }
 
+        let! (:auth) {
+            payload = {
+                data: {
+                    id: original_user.id,
+                },
+                expires: Time.now.to_i + 86400
+            }
+            JWT.encode(payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+        }
         let! (:required_headers) {
             {
                 content_type: "application/json",
                 accept: "application/json",
-                authorization: original_user.id.to_s
+                authorization: auth
             }
         }
 
@@ -157,19 +166,35 @@ RSpec.describe '/api/v1/user' do
             )
         }
 
+        let! (:auth) {
+            payload = {
+                data: {
+                    id: existing_user.id,
+                },
+                expires: Time.now.to_i + 86400
+            }
+            JWT.encode(payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
+    }
         let! (:required_headers) {
             {
                 content_type: "application/json",
                 accept: "application/json",
-                authorization: existing_user.id.to_s
+                authorization: auth
             }
         }
 
         it 'responds 403 if user does not exist' do
+            bad_payload = {
+                data: {
+                    id: 0
+                },
+                expires: Time.now.to_i + 86400
+            }
+            bad_auth = JWT.encode(bad_payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
             bad_user_headers = {
                 content_type: "application/json",
                 accept: "application/json",
-                authorization: "0"
+                authorization: bad_auth
             }
 
             delete "/api/v1/users", headers: bad_user_headers
@@ -177,7 +202,7 @@ RSpec.describe '/api/v1/user' do
             expect(response.code).to eq "401"
         end
 
-        it 'responds 2xx and deletes user if valid request' do
+        it 'responds 204 and deletes user if valid request' do
             delete "/api/v1/users", headers: required_headers
 
             expect(response.code).to eq "204"
