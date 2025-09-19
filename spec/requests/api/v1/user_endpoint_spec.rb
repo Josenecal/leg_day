@@ -98,7 +98,6 @@ RSpec.describe '/api/v1/user' do
             # Update just the first name
             patch "/api/v1/users", params: {first_name: new_first_name}, headers: required_headers
 
-            # binding.pry
             updated_user = User.find(original_user.id)
             
             expect(updated_user.first_name).to eq new_first_name
