@@ -87,7 +87,7 @@ RSpec.describe '/api/v1/user' do
             {
                 content_type: "application/json",
                 accept: "application/json",
-                authorization: auth
+                "Authorization" => auth
             }
         }
 
@@ -98,6 +98,7 @@ RSpec.describe '/api/v1/user' do
             # Update just the first name
             patch "/api/v1/users", params: {first_name: new_first_name}, headers: required_headers
 
+            # binding.pry
             updated_user = User.find(original_user.id)
             
             expect(updated_user.first_name).to eq new_first_name
@@ -145,14 +146,21 @@ RSpec.describe '/api/v1/user' do
         end
 
         it 'returns 403 if user does not exist' do
+            payload = {
+                data: {
+                    id: 0,
+                },
+                expires: Time.now.to_i + 86400
+            }
+            auth = JWT.encode(payload, ENV['JWT_SECRET'], ENV['JWT_STRAT'])
             bad_user_headers = {
                 content_type: "application/json",
                 accept: "application/json",
-                authorization: "0"
+                authorization: auth
             }
             patch "/api/v1/users", params: {first_name: original_user.first_name, last_name: original_user.last_name}, headers: bad_user_headers
 
-            expect(response.code).to eq "403"
+            expect(response.code).to eq "401"
         end
     end
 

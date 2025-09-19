@@ -388,6 +388,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "should reject a request to patch another user's workout" do
+                other_user = create :user
                 another_users_workout = create :workout, user_id: other_user.id
                 patch "/api/v1/workouts/#{another_users_workout.id}", headers: required_headers
 
@@ -671,6 +672,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
 
             it "should reject a request to delete another user's workout" do
+                other_user = create :user
                 another_users_workout = create :workout, user_id: other_user.id
                 delete "/api/v1/workouts/#{another_users_workout.id}", headers: required_headers
                 expect(response.status).to eq 404
