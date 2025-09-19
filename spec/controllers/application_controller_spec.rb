@@ -40,16 +40,5 @@ RSpec.describe ApplicationController, type: :controller do
                 expect(controller.current_user()).to eq nil
             end
         end
-
-        context '#check_required_headers()' do
-            # Since this method renders a response, it is currently being tested in 
-            # request specs. TODO -> dry this out, maybe with a test-env-only route?
-        end
-
-        context '#authenticate_request()' do
-            # Since this method renders a response, it is currently being tested in 
-            # request specs. TODO -> dry this out, maybe with a test-env-only route?
-        end
-
     end
 end
