@@ -1,5 +1,7 @@
 require 'pry'
 class Api::V1::UsersController < ApplicationController
+    before_action :authenticate_request
+    skip_before_action :authenticate_request, only: [:create]
 
     def create
         new_user = User.new(new_user_params())
