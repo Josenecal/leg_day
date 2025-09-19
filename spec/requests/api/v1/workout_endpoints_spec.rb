@@ -68,7 +68,7 @@ RSpec.describe "/api/v1/exercises", type: :request do
             end
         end
 
-        context "response" do # TODO: START HERE WITH TEST REFACTORS
+        context "response" do
             let! (:workout_1) { create :workout, user: user }
             let! (:workout_2) { create :workout, user: user }
 
