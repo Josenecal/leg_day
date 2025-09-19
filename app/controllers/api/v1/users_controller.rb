@@ -15,7 +15,7 @@ class Api::V1::UsersController < ApplicationController
     def update
         user = current_user()
         if user
-            user.update(update_user_params())
+            user.update!(update_user_params())
         else
             render status: 403
         end
