@@ -17,18 +17,11 @@ class ApplicationController < ActionController::API
     end
 
     def current_user()
-        # TO-DO: This will eventually implement JWT auth and need
-        # to be updated to reflect this.
-        id = sanatize_auth_header
-        if id
-            return User.find_by(id: id)
-        else
-            return nil
-        end
+        @current_user ||= authorized_user
     end
 
     def authenticate_request()
-        if current_user()
+        if authorized_user()
             return true
         else
             render status: 401
@@ -37,10 +30,28 @@ class ApplicationController < ActionController::API
 
     private
 
+    def authorized_user()
+        token = sanatize_auth_header()
+        if token
+            begin
+                decode = JWT.decode(token, ENV['JWT_SECRET'], true, { algorithm: ENV['JWT_STRAT'] })
+                payload = decode.first
+                id = payload["data"]["id"]
+                @current_user = User.find_by(id: id)
+            rescue JWT::Base64DecodeError => e
+                @current_user = nil
+            end
+            return @current_user
+        else
+            nil
+        end
+
+    end
+
     def sanatize_auth_header()
         auth = request.headers['Authorization']
-        if auth.present? && auth.is_a?(String) && auth.match?(/\A\d+\z/)
-            return auth.to_i
+        if auth.present? && auth.match?(/\A[a-zA-Z0-9\-\_\.]+\z/)
+            return auth
         else
             return nil
         end
