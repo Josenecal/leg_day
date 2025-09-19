@@ -22,15 +22,6 @@ RSpec.describe 'api/v1/sessions' do
                 } 
             }
 
-            # let!(:expected_successful_response) {
-            #     {
-            #         "status": 200,
-            #         "code": "OK",
-            #         "message": "Authentication Successful",
-            #         "token": nil # force to fail until the JWT infrastructure is up and usable
-            #     }
-            # }
-
             let!(:correct_body) {
                 {
                     "email": "#{user.email}",
@@ -78,7 +69,7 @@ RSpec.describe 'api/v1/sessions' do
                 expect(body["status"]).to eq 200
                 expect(body["code"]).to eq "OK"
                 expect(body["message"]).to eq "Authentication successful."
-                expect(body["token"]).to match /\A[\w\d\.]+\Z/
+                expect(body["token"]).to match /\A[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9\-\_]+\Z/
             end
 
             context "token" do
