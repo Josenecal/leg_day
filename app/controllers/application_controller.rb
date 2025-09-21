@@ -50,7 +50,7 @@ class ApplicationController < ActionController::API
 
     def sanatize_auth_header()
         auth = request.headers['Authorization']
-        if auth.present? && auth.match?(/\A[a-zA-Z0-9\-\_\.]+\z/)
+        if auth.present? && auth.match?(/\A[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9\-\_]+\z/)
             return auth
         else
             return nil
