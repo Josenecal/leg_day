@@ -38,7 +38,7 @@ class ApplicationController < ActionController::API
                 payload = decode.first
                 id = payload["data"]["id"]
                 @current_user = User.find_by(id: id)
-            rescue JWT::Base64DecodeError => e
+            rescue JWT::Base64DecodeError, JWT::DecodeError => e
                 @current_user = nil
             end
             return @current_user
