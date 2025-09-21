@@ -557,7 +557,7 @@ The `workout` itself has no updatable fields - the `completed_at` field is set a
 
 ---
 
-## DELETE `/api/v1/workouts/:id`
+### DELETE `/api/v1/workouts/:id`
 
 This endpoint allows an authorized user to permenantly delete a `workout` and its associated `set structures`. Following RESTful architecture standards, the ID of the `workout` to be deleted is included in the URI. Authorization is included in the request header, in the form of the user's ID. 
 
