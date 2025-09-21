@@ -7,13 +7,6 @@ Welcome to the Leg dAPI, a backend application that supports users planing and t
 ### Clint Plummer: `free-exercise-db`
 Special thanks go out to [Clint Plummer](https://github.com/yuhonas) for contributing an open-source, public-domain dataset of exercises in the [Free Exercise Database](https://github.com/yuhonas/free-exercise-db/). This dataset was used to seed the original 873 exercises in the Leg Day database, and are a critical contribution without wich the Leg Day project simply would not be possible. 
 
-## Current State
-
-This project is still under construction. Some features are not yet implemented, including
-* JWT-based authentication and authorization (see docs for current auth strategy)
-* Exercise-specific endpoints
-* Proper JSON:API serialization of incoming / outgoing user data (see docs below)
-
 ## Local Setup
 
 First, `fork` and `clone` this repository, then navigate to the cloned project directory.
@@ -65,18 +58,20 @@ CRUD operations are supported with a few endpoints:
 
 | **Users** | |
 | :--- | :--- |
-| [POST `/api/v1/users`](#post-apiv1users) | creates a new user in the `users` table.|
-| [PUT/PATCH `/api/v1/users/:id`](#putpatch-apiv1usersid) | updates information for a specific user |
-| [DELETE  `/api/v1/users/:id`](#delete-apiv1usersid) | deletes a specific user from the database
+| [POST `/api/v1/users`](#post-apiv1users) | Creates a new user in the `users` table.|
+| [PUT/PATCH `/api/v1/users/:id`](#putpatch-apiv1usersid) | Updates information for a specific user. |
+| [DELETE  `/api/v1/users/:id`](#delete-apiv1usersid) | Deletes a specific user from the database. |
 | **Workouts** ||
-| [GET `/api/v1/workouts`](#get-apiv1workouts) | gets an index of a user's workouts |
-| [GET `/api/v1/workouts/:id`](#get-apiv1workoutsid) | gets a specific workout |
-| [POST `/api/v1/workouts`](#post-apiv1workouts) | creates a new workout in the `workouts` table, as well as any dependent set structures in the `set_structures` table |
-| [PUT/PATCH `/api/v1/workouts/:id`](#putpatch-apiv1workoutsid) | updates set structures associated with a workout |
-| [DELETE `/api/v1/workouts/:id`](#delete-apiv1workoutsid) | delete a specific workout and its set structures |
+| [GET `/api/v1/workouts`](#get-apiv1workouts) | Gets an index of a user's workouts. |
+| [GET `/api/v1/workouts/:id`](#get-apiv1workoutsid) | Gets a specific workout. |
+| [POST `/api/v1/workouts`](#post-apiv1workouts) | Creates a new workout in the `workouts` table, as well as any dependent set structures in the `set_structures` table. |
+| [PUT/PATCH `/api/v1/workouts/:id`](#putpatch-apiv1workoutsid) | Updates set structures associated with a workout. |
+| [DELETE `/api/v1/workouts/:id`](#delete-apiv1workoutsid) | Delete a specific workout and its set structures. |
 | **Exercises** ||
-| [GET `/api/v1/exercises`](#get-apiv1exercises) | gets a paginated list of all exercises in JSON format |
-| [GET `/api/v1/exercises/:id`](#get-apiv1exercisesid) | shows a specific exercise in detail |
+| [GET `/api/v1/exercises`](#get-apiv1exercises) | Gets a paginated list of all exercises in JSON format. |
+| [GET `/api/v1/exercises/:id`](#get-apiv1exercisesid) | Shows a specific exercise in detail. |
+| **Authentication** ||
+| [POST `/api/v1/auth`](#post-apiv1auth) | Returns a JWT when passed a valid email and password. |
 
 ## User Endpoints
 
@@ -562,7 +557,7 @@ The `workout` itself has no updatable fields - the `completed_at` field is set a
 
 ---
 
-## DELETE `/api/v1/workouts/:id`
+### DELETE `/api/v1/workouts/:id`
 
 This endpoint allows an authorized user to permenantly delete a `workout` and its associated `set structures`. Following RESTful architecture standards, the ID of the `workout` to be deleted is included in the URI. Authorization is included in the request header, in the form of the user's ID. 
 
@@ -748,3 +743,54 @@ This endpoint allows users to request detailed information about 1 exercise by a
 #### UNSUCCESSFUL RESPONSE
 `Status 404`
 `Status 500`
+
+## Authentication
+
+### POST `/api/v1/auth`
+
+This endpoint will provide an index of all exercises in the database. By default, the response is paginated with 20 items per page. The JSON response will include top-level `meta` and `links` objects to support front-end pagination. The endpoint itself will accept a `page` query param to support navigation.
+
+No authorization is necessary to access this endpoint.
+
+#### REQUIRED HEADERS
+
+```JSON
+{
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
+```
+
+#### REQUEST BODY
+
+The request body should be sent in JSON format, and must contain valid `email` and `password` properties at the root level:
+
+```json
+{
+    "email": "my@email.com",
+    "Password": "my_password"
+}
+```
+
+
+#### SUCCESSFUL RESPONSE
+
+```json
+{
+    "status": 200,
+    "code": "OK",
+    "message": "Authentication Successful",
+    "token": "example123.json456.token789"
+}
+```
+
+#### UNSUCCESSFUL RESPONSES
+
+```json
+    {
+        "status": 401,
+        "code": "UNAUTHORIZED",
+        "message": "Authentican Failed",
+        "details": "The email and password provided do not match"
+    }
+```

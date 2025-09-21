@@ -47,18 +47,12 @@ class Api::V1::WorkoutsController < ApplicationController
     private
 
     def new_workout_params()
-        # Placeholder - workout_params are curerntly expected to be empty...
         workout_params = params.dig(:data, :attributes)&.permit() || {}
-        # ... because User ID is currently merged from auth header!
-        # TODO: Clean this up once JWT auth is in place!
-        workout_params[:user_id] = sanatize_auth_header
-
+        workout_params[:user_id] = current_user.id
         included = params[:included] || []
         set_structures = included
             .select { |item| item[:type] == "set_structure" }
             .map do |set_struct|
-                # Help ActiveRecord understand enum by formating int as int, not a string
-                # Makes code more tolerant of receiving either format
                 if set_struct[:attributes][:resistance_unit].match? /\A\d+\z/
                     set_struct[:attributes][:resistance_unit] = set_struct[:attributes][:resistance_unit].to_i
                 end

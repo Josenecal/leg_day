@@ -16,4 +16,5 @@ class User < ApplicationRecord
     def self.updatable_params()
         return [:first_name, :last_name]
     end
+
 end

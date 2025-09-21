@@ -1,5 +1,7 @@
 require 'pry'
 class Api::V1::UsersController < ApplicationController
+    before_action :authenticate_request
+    skip_before_action :authenticate_request, only: [:create]
 
     def create
         new_user = User.new(new_user_params())
@@ -13,7 +15,7 @@ class Api::V1::UsersController < ApplicationController
     def update
         user = current_user()
         if user
-            user.update(update_user_params())
+            user.update!(update_user_params())
         else
             render status: 403
         end
@@ -32,11 +34,11 @@ class Api::V1::UsersController < ApplicationController
     private
 
     def new_user_params()
-        params.permit(*User.new_record_params())
+        params.permit(*User.new_record_params)
     end
 
     def update_user_params()
-        params.permit(*User.updatable_params())
+        params.permit(*User.updatable_params)
     end
 
 end
